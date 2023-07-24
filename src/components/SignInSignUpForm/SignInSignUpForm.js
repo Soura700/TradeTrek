@@ -1,5 +1,5 @@
-import img from '../assets/img.svg';
-import img2 from "../assets/img1.svg";
+import img from '../../assets/img.svg';
+import img2 from "../../assets/img1.svg";
 import './sign.css';
 
 import React, { useState } from "react";

@@ -14,10 +14,10 @@ import SignInSignUpForm from '../src/components/SignInSignUpForm/SignInSignUpFor
 function App() {
   return (
     <div className="App">
-      <Header/>
-      <Hero/>
-      <Slider/>
-      <Products/>
+      {/* <Header/> */}
+      {/* <Hero/> */}
+      {/* <Slider/> */}
+      {/* <Products/> */}
       <SignInSignUpForm/>
       {/* <Testimonial/> */}
       {/* <Footer/> */}
