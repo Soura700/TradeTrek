@@ -4,6 +4,7 @@ import Header from './components/Header/Header';
 import Hero from './components/Hero/Hero';
 import Slider from './components/Slider/Slider';
 import Products from "./components/Products/Products"
+import SignInSignUpForm from '../src/components/SignInSignUpForm/SignInSignUpForm.js';
 // import Newsletter from './components/Newsletter/Newsletter';
 // import Countdown from './components/Countdown/Countdown';
 // // import Footer from './components/Footer/Footer';
@@ -17,6 +18,7 @@ function App() {
       <Hero/>
       <Slider/>
       <Products/>
+      <SignInSignUpForm/>
       {/* <Testimonial/> */}
       {/* <Footer/> */}
       {/* <Newsletter/> */}
