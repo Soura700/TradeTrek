@@ -3,8 +3,8 @@ const bodyParser = require("body-parser");
 const dotenv = require("dotenv");
 const app = express();
 var connection = require("./connection")
-var registerAuth = require("./routes/registerAuth")
 var createProduct = require("./routes/products");
+const cors = require("cors");
 
 
 
@@ -14,6 +14,9 @@ dotenv.config();
 
 // Step 2:
 app.use(express.json());
+
+app.use("/upload",express.static("upload"));
+
 // Step 3:
 // const connection = mysql.createConnection({
 //     host: process.env.HOST,
@@ -22,18 +25,11 @@ app.use(express.json());
 //     database: process.env.DATABASE
 //   });
 
-
-// Making the connetion with the database 
-
-
-// const connection = mysql.createConnection({
-//     host: "localhost",
-//     user:"root",
-//     password: "root123",
-//     database:"users"
-//   });
-
-
+app.use(cors({
+  origin: 'http://localhost:3000', 
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', 
+  credentials: true,
+}))
 
   connection.connect((err) => {
     if (err) {
@@ -60,7 +56,12 @@ PORT=5000;
 
 // app.use("/api/auth",registerAuth);
 
-app.use("/api/create",createProduct);
+app.use("/api/product",createProduct);
+
+app.get("/",(req,res)=>{
+  res.send("Hello")
+  
+})
 
 
 
