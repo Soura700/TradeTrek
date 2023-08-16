@@ -71,7 +71,7 @@ function App() {
           element: <Home />,
         },
         {
-          path: "/singleProduct",
+          path: "/singleProduct/:id/:productName",
           element: <SingleProduct />,
         },
       ],

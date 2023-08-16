@@ -123,7 +123,7 @@ const Slider = () => {
               </div>
               <span>{slide.price}$</span>
               <div>Shop Now</div>
-              <Link to={`/singleProduct/${slide.p_id}`}>View Now</Link>
+              <Link to={`/singleProduct/${slide.p_id}/${slide.productName}`}>View Now</Link>
             </div>
             <img src={`http://localhost:5000/${slide.images[0]}`} alt="" className="img-p" />
             {/* <img src={`../../../../backend/upload/slide.images[0]`} alt="" className="img-p" /> */}
