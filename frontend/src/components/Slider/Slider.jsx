@@ -64,13 +64,19 @@ import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
 
+
+
 import "./slider.css";
 
 const Slider = () => {
+  
   const [sliderProducts, setSliderProducts] = useState([]);
 
   useEffect(() => {
     async function fetchSliderProducts() {
+
+      
+
       try {
         const response = await axios.get("http://localhost:5000/api/product/getProducts");
 
@@ -113,8 +119,6 @@ const Slider = () => {
         }}
       >
         {sliderProducts.map((slide, i) => (
-          console.log(slide.images[0]),
-          console.log(sliderProducts),
           <SwiperSlide key={i}>
             <div className="left-s">
               <div className="name">
