@@ -35,15 +35,21 @@
 
 import './App.css';
 import Header from './components/Header/Header';
-// import SignInSignUpForm from './components/SignUp/SignUp';
 import SingleProduct from "./components/SingleProduct/SingleProduct.jsx"
+import SignInSignUpForm from './components/SignInSignUpForm/SignInSignUpForm';
 
 import Footer from './components/Footer/Footer';
 import { Link , Route , Router , Outlet, createBrowserRouter, RouterProvider } from 'react-router-dom';
 import Home from './pages/Home/Home';
+import { useState } from 'react';
+import Cart from './components/Cart/Cart';
+
 
 
 function App() {
+
+  const [isLogin , setLogin] = useState(false);
+
 
   const Layout = () =>{
     return(
@@ -74,26 +80,28 @@ function App() {
           path: "/singleProduct/:id/:productName",
           element: <SingleProduct />,
         },
+        {
+          path: "/cart/:id/:productName",
+          element: <Cart />,
+        },
       ],
     },
-    {
-      path: "/singleProduct",
-      element: <SingleProduct/>,
-    },
+    // {
+    //   path: "/singleProduct",
+    //   element: <SingleProduct/>,
+    // },
 
-    // {
-    //   path: "/login",
-    //   element: <SignInSignUpForm />,
-    // },
-    // {
-    //   path: "/register",
-    //   element: <SignInSignUpForm />,
-    // },
+    {
+      path: "/login",
+      element: <SignInSignUpForm />,
+    },
   ]);
 
   return (
     <div className="App">
-      <RouterProvider router={router}/>
+      {/* <AuthContext> */}
+        <RouterProvider router={router}/>
+      {/* </AuthContext>   */}
     </div>
   );
 }

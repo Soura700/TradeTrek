@@ -1,11 +1,11 @@
 import React from "react";
-import "./testimonials.css";
+// import "./testimonials.css";
 import Hero from "../../assets/testimonialHero.png";
 import { TestimonialsData } from "../../data/testimonials";
 import { motion } from "framer-motion";
 // Import Swiper React components
 import { Swiper, SwiperSlide } from "swiper/react";
-
+import styles from "./testimonials.module.css"
 // Import Swiper styles
 import "swiper/css";
 import "swiper/css/pagination";
@@ -17,9 +17,9 @@ import "swiper/css"
 
 const Testimonial = () => {
   return (
-    <div className="testimonials">
-      <div className="wrapper">
-        <div className="container">
+    <div className={styles.testimonials}>
+      <div className={styles.wrapper}>
+        <div className={styles.container}>
           <span>Top Rated</span>
           <span>
             Seedily say has suitable disposal and boy. Exercise joy man children
@@ -29,15 +29,15 @@ const Testimonial = () => {
 
         <img src={Hero} alt="" />
 
-        <div className="container">
+        <div className={styles.container}>
           <span>100k</span>
           <span>Happy Customers with us</span>
         </div>
       </div>
 
-      <div className="reviews">Reviews</div>
+      <div className={styles.reviews}>Reviews</div>
 
-      <div className="carousel">
+      <div className={styles.carousel}>
         <Swiper
           slidesPerView={3}
           slidesPerGroup={1}
@@ -46,7 +46,7 @@ const Testimonial = () => {
             delay: 10000, // Delay in milliseconds
             disableOnInteraction: false, // Autoplay continues even when user interacts with the swiper
           }}
-          className="tCarousel"
+          className={styles.tCarousel}
           breakpoints={{
             856: {
               slidesPerView: 3,
@@ -61,7 +61,7 @@ const Testimonial = () => {
         >
           {TestimonialsData.map((testimonial, i) => (
             <SwiperSlide>
-              <div className="testimonial" key={i}>
+              <div className={styles.testimonial} key={i}>
                 <img src={testimonial.image} alt="" />
                 <span>{testimonial.comment}</span>
                 <hr />

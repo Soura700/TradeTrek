@@ -1,5 +1,6 @@
 // import React from "react";
 // import styles from "./header.module.css";
+// import "./header.css"
 // import Logo from "../../assets/logo.png";
 // import { CgShoppingBag } from "react-icons/cg";
 
@@ -39,6 +40,7 @@ import { CgShoppingBag } from "react-icons/cg";
 
 
 const Header = () => {
+  
   return (
     <div className={styles.container}>
       <div className={styles.logo}>

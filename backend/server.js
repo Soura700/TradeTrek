@@ -4,6 +4,7 @@ const dotenv = require("dotenv");
 const app = express();
 var connection = require("./connection")
 var createProduct = require("./routes/products");
+var registerAuth = require("./routes/registerAuth")
 const cors = require("cors");
 
 
@@ -54,7 +55,7 @@ PORT=5000;
 //     res.render('text');
 // })
 
-// app.use("/api/auth",registerAuth);
+app.use("/api/auth",registerAuth);
 
 app.use("/api/product",createProduct);
 

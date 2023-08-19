@@ -51,6 +51,8 @@ const SingleProduct = () => {
     setQuantity(quantity + 1);
   };
 
+
+
   return (
     <div class="card-wrapper">
       <div class="card">
