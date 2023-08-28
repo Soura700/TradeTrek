@@ -106,7 +106,7 @@ router.post("/checkout-session", async (req, res) => {
               payment_method_types: ["card"],
               mode: "payment",
               line_items: lineItems,
-              success_url: "http://localhost:5000/success", // Replace with your success URL
+              success_url: "http://localhost:5000", // Replace with your success URL
               cancel_url: "http://localhost:5000/checkout", // Replace with your cancel URL
             });
 

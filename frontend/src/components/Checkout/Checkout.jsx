@@ -48,7 +48,6 @@ const Checkout = () => {
   // Handling the cash on delivery
   const handlePayWithCOD = async () => {
 
-
     try {
       const cookie = await fetch(
         "http://localhost:5000/api/auth/check-cookie",
@@ -127,6 +126,63 @@ const Checkout = () => {
 
   const handlePayWithOnline = async () => {
     
+    try {
+      const response = await fetch("http://localhost:5000/api/checkout-session", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ user_id: userId }), // Replace with actual user ID
+      });
+
+      const data = await response.json();
+
+      if (data.url) {
+        // Redirect to the Stripe session URL (PayPal checkout)
+        window.location.href = data.url;
+        data.forEach(async (item,index) => {
+
+
+          // Fetch the current countInStock value of the product
+  
+  
+  
+          const productResponse = await axios.get(`http://localhost:5000/api/product/singleProduct/${item.p_id}`);
+  
+  
+          const product = productResponse.data[0];
+          console.log(product)
+          const currentCountInStock = product.countInStock;
+  
+          const newCountInStock = currentCountInStock - item.totalCount;
+  
+      
+  
+          // Update the products table with the new countInStock value
+          await axios.put(
+            `http://localhost:5000/api/product/update/${item.p_id}`,
+            {
+              countInStock: newCountInStock,
+            }
+          );
+  
+          await axios.put(
+            `http://localhost:5000/api/cart/update_status/${userId}`,
+            {
+              cart_id:item.cart_id,
+              is_active: 0,
+            }
+          );
+  
+          console.log("Updated successfully Successfully");
+        });
+      } else {
+        console.log("Error: No session URL found.");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+
   }
 
   return (
@@ -369,7 +425,7 @@ const Checkout = () => {
                     >
                       <div className="card-body">
                         <p>Pay online.</p>
-                        <button
+                        <button onClick={handlePayWithOnline}
                           className="btn theme-btn-1 btn-effect-1 text-uppercase"
                           id="cod-btn"
                         >
