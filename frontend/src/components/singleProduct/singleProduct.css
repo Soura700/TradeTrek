@@ -130,7 +130,7 @@ img{
     margin: 1.5rem 0;
 }
 .purchase-info input,
-.purchase-info .btn{
+.purchase-info .btn_single{
     border: 1.5px solid #ddd;
     border-radius: 25px;
     text-align: center;
@@ -142,17 +142,17 @@ img{
 .purchase-info input{
     width: 60px;
 }
-.purchase-info .btn{
+.purchase-info .btn_single{
     cursor: pointer;
     color: #fff;
 }
-.purchase-info .btn:first-of-type{
+.purchase-info .btn_single:first-of-type{
     background: #256eff;
 }
-.purchase-info .btn:last-of-type{
+.purchase-info .btn_single:last-of-type{
     background: #f64749;
 }
-.purchase-info .btn:hover{
+.purchase-info .btn_single:hover{
     opacity: 0.9;
 }
 .social-links{
@@ -180,7 +180,7 @@ img{
 }
 
 @media screen and (min-width: 992px){
-    .card{
+    .card_single{
         display: grid;
         grid-template-columns: repeat(2, 1fr);
         grid-gap: 1.5rem;

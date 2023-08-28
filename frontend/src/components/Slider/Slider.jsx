@@ -82,7 +82,7 @@ const Slider = () => {
 
         const data = response.data;
 
-        console.log(data)
+        console.log(response)
 
         // const image
         // console.log(data.images[0])

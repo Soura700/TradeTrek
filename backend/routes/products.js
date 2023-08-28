@@ -124,7 +124,27 @@ router.get("/:categories",async (req,res)=>{
   }
 })
 
+// Update Product
 
+router.put("/update/:id",async (req,res)=>{
+  const {id} = req.params;
+  const countInStock = req.body.countInStock;
+  try{
+    
+
+    connection.query(' UPDATE products SET countInStock = ?  where p_id = ?  ' , [  countInStock , id , ] , (error,result) =>{
+      if(error){
+        return res.status(500).json(error);
+      }
+      else{
+        res.status(200).json(result)
+      }
+    })
+  }catch(error){
+    console.log(error)
+    res.status(500).json(error);
+  }
+})
 
 // Exporting
 module.exports = router;

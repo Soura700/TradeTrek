@@ -1,60 +1,78 @@
-// import logo from './logo.svg';
-// import './App.css';
-// import Header from './components/Header/Header';
-// import Hero from './components/Hero/Hero';
-// import Slider from './components/Slider/Slider';
-// import Products from "./components/Products/Products"
-// import SignInSignUpForm from '../src/components/SignInSignUpForm/SignInSignUpForm.js';
-// // import Newsletter from './components/Newsletter/Newsletter';
-// // import Countdown from './components/Countdown/Countdown';
-// // // import Footer from './components/Footer/Footer';
-// // import Testimonial from './components/Testimonials/Testimonials';
-
-
-// function App() {
-//   return (
-//     <div className="App">
-//       {/* <Header/> */}
-//       {/* <Hero/> */}
-//       {/* <Slider/> */}
-//       {/* <Products/> */}
-//       <SignInSignUpForm/>
-//       {/* <Testimonial/> */}
-//       {/* <Footer/> */}
-//       {/* <Newsletter/> */}
-//       {/* <Countdown duration={2*24*60*60*1000}/> */}
-      
-//     </div>
-//   );
-// }
-
-// export default App;
-
-
-
-
 import './App.css';
+import React, { useState } from "react";
+import { useEffect} from 'react'
+import axios from "axios"
 import Header from './components/Header/Header';
 import SingleProduct from "./components/SingleProduct/SingleProduct.jsx"
-import SignInSignUpForm from './components/SignInSignUpForm/SignInSignUpForm';
+// import SignInSignUpForm from './components/SignInSignUpForm/SignInSignUpForm';
 
 import Footer from './components/Footer/Footer';
 import { Link , Route , Router , Outlet, createBrowserRouter, RouterProvider } from 'react-router-dom';
 import Home from './pages/Home/Home';
-import { useState } from 'react';
 import Cart from './components/Cart/Cart';
+import { AuthProvider } from './context/authContext';
+// import Checkout from './pages/Checkout/Checkout';
+import Checkout from './components/Checkout/Checkout';
+
 
 
 
 function App() {
 
-  const [isLogin , setLogin] = useState(false);
+
+
+
+  const [cartData, setCartData] = useState([]);
+  const [cookie , setCookie] = useState(null);
+  
+
+
+
+  useEffect(() => {
+    async function fetchCartProducts() {
+      try {
+        const cookie = await fetch(
+          "http://localhost:5000/api/auth/check-cookie",
+          {
+            method: "GET",
+            credentials: "include",
+          }
+        );
+        const cookieData = await cookie.json();
+
+        setCookie(cookieData);
+
+        const cookieRes = await axios.get(
+          "http://localhost:5000/api/cart/get/cart/" + cookieData
+        );
+
+        const data = cookieRes.data;
+
+        const newData = data.map(product => {
+          const imagesArray = JSON.parse(product.images);
+          return {
+            ...product,
+            images: imagesArray
+          };
+        });
+
+
+
+        setCartData(newData);
+
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    }
+
+    fetchCartProducts();
+  }, []);
 
 
   const Layout = () =>{
     return(
       <div>
-        <Header/>
+        <Header value={cartData}/>
         {/* <div> */}
           <Outlet/>
         {/* </div> */}
@@ -81,27 +99,28 @@ function App() {
           element: <SingleProduct />,
         },
         {
-          path: "/cart/:id/:productName",
+          path: "/cart",
           element: <Cart />,
+        },
+        {
+          path: "/checkout/:userId",
+          element: <Checkout />,
         },
       ],
     },
-    // {
-    //   path: "/singleProduct",
-    //   element: <SingleProduct/>,
-    // },
 
-    {
-      path: "/login",
-      element: <SignInSignUpForm />,
-    },
+
+    // {
+    //   path: "/login",
+    //   element: <SignInSignUpForm />,
+    // },
   ]);
 
   return (
     <div className="App">
-      {/* <AuthContext> */}
+      <AuthProvider>
         <RouterProvider router={router}/>
-      {/* </AuthContext>   */}
+      </AuthProvider>  
     </div>
   );
 }

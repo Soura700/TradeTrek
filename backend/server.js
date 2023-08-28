@@ -5,6 +5,9 @@ const app = express();
 var connection = require("./connection")
 var createProduct = require("./routes/products");
 var registerAuth = require("./routes/registerAuth")
+var cartRoute = require("./routes/cart")
+var checkoutRoute = require("./routes/checkout")
+var orderRoute = require("./routes/order")
 const cors = require("cors");
 
 
@@ -58,6 +61,13 @@ PORT=5000;
 app.use("/api/auth",registerAuth);
 
 app.use("/api/product",createProduct);
+
+app.use("/api/cart",cartRoute);
+
+app.use("/api/checkout",checkoutRoute);
+
+app.use("/api/order",orderRoute)
+
 
 app.get("/",(req,res)=>{
   res.send("Hello")

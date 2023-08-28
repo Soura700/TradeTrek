@@ -8,7 +8,16 @@ import { RiShoppingBagFill } from "react-icons/ri";
 import { BsArrowRight } from "react-icons/bs";
 import { motion } from "framer-motion";
 
-const Hero = () => {
+const Hero = ({value}) => {
+
+
+
+  var totalCartItem = 0;
+  for(var i = 0 ; i<value.length ; i++){
+    totalCartItem = totalCartItem + value[i].total;
+  }
+
+
   const transition = { duration: 3, type: "spring" };
   const mobile = window.innerWidth<=768? true:false;
   return (
@@ -30,7 +39,7 @@ const Hero = () => {
       <div className={css.wrapper}>
         <motion.div
           initial={{ bottom: !mobile && "2rem" }}
-          whileInView={{ bottom: "0rem" }}
+          whileInView={{ bottom: "-1rem" }}
           transition={transition}
           className={css.blueCircle}
         ></motion.div>
@@ -40,7 +49,7 @@ const Hero = () => {
           transition={transition}
           src={HeroImg}
           alt=""
-          // height={700}
+          height={650}
           width={600}
         />
         <motion.div
@@ -49,9 +58,13 @@ const Hero = () => {
           transition={transition}
           className={css.cart2}
         >
-          <RiShoppingBagFill />
+          <RiShoppingBagFill className="signup_offers"/>
+          <div className={css.valueContainer}>
+          {/* Value placed here */}
+          <span className={css.value}>{totalCartItem}</span>
+        </div>
           <div className={css.signup}>
-            <span>Best Signup Offers</span>
+            <span >Best Signup Offers</span>
             <div>
               <BsArrowRight />
             </div>

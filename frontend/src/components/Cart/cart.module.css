@@ -1,0 +1,222 @@
+/* cart.module.css */
+.liton__shoping-cart-area {
+    background-color: #fff9e6; /* Light yellow background */
+    padding: 30px;
+    border-radius: 10px;
+  }
+  
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 15px;
+  }
+  
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    margin: -15px; /* Create some spacing between columns */
+  }
+  
+  .col-lg-12 {
+    flex: 0 0 100%; /* Full width on smaller screens */
+    max-width: 100%;
+    padding: 15px;
+  }
+  
+  .shoping-cart-inner {
+    border: 1px solid #ddd;
+    padding: 20px;
+    border-radius: 10px;
+    background-color: #ffffff;
+  }
+  
+  .shoping-cart-table {
+    overflow-x: auto;
+  }
+  
+  .table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .table th,
+  .table td {
+    padding: 12px;
+    border: 1px solid #ddd;
+  }
+  
+  .cart-product-image img {
+    max-width: 100px;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+  }
+  
+  .cart-product-info h4 {
+    margin: 0;
+  }
+  
+  .cart-plus-minus {
+    display: flex;
+    align-items: center;
+  }
+  
+  .cart-plus,
+  .cart-minus {
+    background-color: #fff9e6;
+    border: none;
+    color: #333;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 5px 10px;
+  }
+  
+  .cart-plus-minus-box {
+    border: 1px solid #ddd;
+    padding: 5px 10px;
+    text-align: center;
+    width: 40px;
+    margin: 0 10px;
+  }
+  
+  .cart-product-subtotal {
+    font-weight: bold;
+  }
+  
+  .btn-wrapper {
+    margin-top: 20px;
+    text-align: right;
+  }
+  
+  .theme-btn-1 {
+    background-color: #f39c12;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .theme-btn-1:hover {
+    background-color: #e67e22;
+  }
+
+  
+  .cart-subtotal-table {
+    margin-top: 20px;
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Responsive adjustments */
+  @media screen and (max-width: 768px) {
+    .shoping-cart-inner {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .shoping-cart-total {
+      margin-top: 20px;
+    }
+    
+    .cart-subtotal-table {
+      margin-top: 20px;
+    }
+  }
+
+  /* cart.module.css */
+/* ... previous styles ... */
+
+/* Additional styles for the cart subtotal area */
+/* cart.module.css */
+/* ... previous styles ... */
+
+/* Additional styles for the cart subtotal area */
+.cart-subtotal-table {
+    margin-top: 20px;
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Decrease the padding for table rows in the cart subtotal area */
+  .cart-subtotal-table tbody tr td {
+    padding: 6px 12px;
+  }
+  
+  /* Decrease the width of specific columns */
+  .cart-subtotal-table tbody tr td:nth-child(1),
+  .cart-subtotal-table tbody tr td:nth-child(2) {
+    width: 30%;
+  }
+  
+  /* Responsive adjustments */
+  @media screen and (max-width: 768px) {
+    .shoping-cart-inner {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .shoping-cart-total {
+      margin-top: 20px;
+    }
+    
+    .cart-subtotal-table {
+      margin-top: 20px;
+    }
+  }
+  /* cart.module.css */
+/* ... previous styles ... */
+
+/* Style for the "Checkout" span */
+.heading {
+    /* display: block; */
+    text-align: center;
+    font-size: 24px;
+    margin-top: 20px;
+    color: #333; /* Adjust the color as needed */
+  }
+  
+  /* Additional styles for the cart subtotal area */
+  .cart-subtotal-table {
+    margin-top: 20px;
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Decrease the padding for table rows in the cart subtotal area */
+  .cart-subtotal-table tbody tr td {
+    padding: 6px 12px;
+  }
+  
+  /* Decrease the width of specific columns */
+  .cart-subtotal-table tbody tr td:nth-child(1),
+  .cart-subtotal-table tbody tr td:nth-child(2) {
+    width: 30%;
+  }
+  
+  /* Responsive adjustments */
+  @media screen and (max-width: 768px) {
+    .shoping-cart-inner {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .shoping-cart-total {
+      margin-top: 20px;
+    }
+    
+    .cart-subtotal-table {
+      margin-top: 20px;
+    }
+  }
+  

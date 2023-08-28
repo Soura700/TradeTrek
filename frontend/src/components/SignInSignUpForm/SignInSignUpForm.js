@@ -34,13 +34,16 @@ const SignInSignUpForm = () => {
     console.log(data);
 
     try {
-      const response = await axios.post("http://localhost:5000/api/auth/login", data);
+      const response = await axios.post("http://localhost:5000/api/auth/login", data , {
+        withCredentials:true
+      });
       console.log("Login response:", response.data);
       // Handle success or redirect the user
     } catch (error) {
       console.error("Login error:", error);
       // Handle error
     }
+
   };
 
   const handleSubmitSignUp = async (event) => {
@@ -50,7 +53,9 @@ const SignInSignUpForm = () => {
     const data = Object.fromEntries(formData.entries());
 
     try {
-      const response = await axios.post("http://localhost:5000/api/auth/register", data);
+
+      const response = await axios.post("http://localhost:5000/api/auth/register", data );
+
       console.log("Register response:", response.data);
       // Handle success or redirect the user
       
@@ -58,6 +63,8 @@ const SignInSignUpForm = () => {
       console.error("Register error:", error);
       // Handle error
     }
+
+    
   };
 
 
