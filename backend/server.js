@@ -7,7 +7,8 @@ var createProduct = require("./routes/products");
 var registerAuth = require("./routes/registerAuth")
 var cartRoute = require("./routes/cart")
 var checkoutRoute = require("./routes/checkout")
-var orderRoute = require("./routes/order")
+var orderRoute = require("./routes/order");
+const payment = require("./routes/payment")
 const cors = require("cors");
 
 
@@ -68,6 +69,7 @@ app.use("/api/checkout",checkoutRoute);
 
 app.use("/api/order",orderRoute)
 
+app.use("/api",payment)
 
 app.get("/",(req,res)=>{
   res.send("Hello")
