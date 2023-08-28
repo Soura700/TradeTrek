@@ -40,13 +40,20 @@ router.post("/checkout-session", async (req, res) => {
 
     connection.query('SELECT * FROM cart WHERE user_id = ?',
       [userId],
-      (err,result)
+      (err,result)=>{
+        if(err){
+          console.log(err);
+          return res.status(500).json(err);
+        }else{
+          return res.status(200).json(result);
+        }
+      }
     )
 
     
-    if (!cart) {
-      return res.status(404).json({ message: "Cart not found for this user." });
-    }
+    // if (!cart) {
+    //   return res.status(404).json({ message: "Cart not found for this user." });
+    // }
 
 
     const lineItems = cart.cartProducts.map((item) => {
@@ -72,4 +79,12 @@ router.post("/checkout-session", async (req, res) => {
       cancel_url: "http://localhost:5000/checkout",
     });
 
-    res.json({ u
+    res.json({ url: session.url });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json(error);
+  }
+});
+
+
+module.exports = router;
