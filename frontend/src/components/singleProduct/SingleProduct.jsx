@@ -131,6 +131,7 @@ const SingleProduct = () => {
   const notify = () => toast("Items are added to the cart");//Toastify
 
   return (
+    
     <div class="card-wrapper">
       <div class="card_single">
         <div class="product-imgs">

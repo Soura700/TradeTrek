@@ -59,6 +59,10 @@ PORT=5000;
 //     res.render('text');
 // })
 
+app.get("/",(req,res)=>{
+  res.send("Hello")
+})
+
 app.use("/api/auth",registerAuth);
 
 app.use("/api/product",createProduct);

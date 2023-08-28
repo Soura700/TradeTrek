@@ -3,6 +3,9 @@ import "./checkout.css";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 const Checkout = () => {
   const { userId } = useParams();
 
@@ -123,6 +126,8 @@ const Checkout = () => {
     }
   };
 
+  const notify = () => toast("Order has been created successfully");//Toastify
+
 
   const handlePayWithOnline = async () => {
     
@@ -140,6 +145,7 @@ const Checkout = () => {
       if (data.url) {
         // Redirect to the Stripe session URL (PayPal checkout)
         window.location.href = data.url;
+        
         data.forEach(async (item,index) => {
 
 
@@ -543,6 +549,7 @@ const Checkout = () => {
           </div>
         </div>
       </div>
+      <ToastContainer/>
       {/* WISHLIST AREA START */}
     </>
   );
