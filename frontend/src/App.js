@@ -4,7 +4,7 @@ import { useEffect} from 'react'
 import axios from "axios"
 import Header from './components/Header/Header';
 import SingleProduct from "./components/SingleProduct/SingleProduct.jsx"
-// import SignInSignUpForm from './components/SignInSignUpForm/SignInSignUpForm';
+import SignInSignUpForm from './components/SignInSignUpForm/SignInSignUpForm';
 
 import Footer from './components/Footer/Footer';
 import { Link , Route , Router , Outlet, createBrowserRouter, RouterProvider } from 'react-router-dom';
@@ -109,11 +109,10 @@ function App() {
       ],
     },
 
-
-    // {
-    //   path: "/login",
-    //   element: <SignInSignUpForm />,
-    // },
+    {
+      path: "/login",
+      element: <SignInSignUpForm />,
+    },
   ]);
 
   return (
