@@ -6,6 +6,7 @@ const connection = require("../connection");
 const session = require("express-session");
 const MongoStore = require("connect-mongo")(session); // Import the session store
 const cookieParser = require("cookie-parser");
+const jwt = require("jsonwebtoken");
 
 
 router.use(cookieParser());
@@ -421,43 +422,105 @@ router.get("/check-cookie", (req, res) => {
   }
 });
 
-// Change the password
-router.post("/reset-password/:id/:token", async (req, res, next) => {
-  const { id, token } = req.params;
-  console.log(id)
-  const user = await User.findOne({ _id: id });
-  if (!user) {
-    return res.json({ status: "User not exists!!!" });
-  }
-  const secret = process.env.JWT_SECRET + user.password
-  try {
-    const payload = jwt.verify(token, secret)
-    
-    // const salt = await bcrypt.genSalt(12);
-    // const hashedPass = await bcrypt.hash(req.body.password, salt);
 
-    const hashedPass = await argon2.hash(req.body.password);
-    await User.updateOne(
-      {
-        _id: id,
-      },
-      {
-        $set: {
-          password: hashedPass,
-        },
-      },
-    );
-    res.json({ msg: "Password Updated" })
-    // }
+// Forgot password
+router.post("/forgot-password", async (req, res) => {
+  try {
+    const email = req.body.email;
+
+    // Fetch user from MySQL
+    const [rows] = await connection.query('SELECT * FROM users WHERE email = ?', [email]);
+    const user = rows[0];
+
+    if (user) {
+      // Create a one-time link for 15 minutes validation
+      const secret = process.env.JWT_SECRET + user.user_password;
+
+      const payload = {
+        email: user.email,
+        id: user.id
+      }
+
+      const jwtToken = jwt.sign(payload, secret, { expiresIn: '15m' });
+
+      const emailContent = `Hello, Please click the link to reset your password http://localhost:3000/reset-password/${user.id}/${jwtToken}`;
+
+      // Send the email using your preferred method (not shown here)
+
+      res.json({ msg: 'Password reset link sent successfully!' });
+    } else {
+      res.status(400).json({ msg: "User is not registered..." });
+    }
   } catch (error) {
-    console.log(error)
+    console.log(error);
+    res.status(500).json({ message: "Error occurred", error });
+  }
+});
+
+router.get("/reset-password/:id/:token", async (req, res) => {
+  const { id, token } = req.params;
+
+  try {
+    // Fetch user from MySQL
+    const [rows] = await pool.query('SELECT * FROM users WHERE id = ?', [id]);
+    const user = rows[0];
+
+    if (!user) {
+      return res.json({ status: "User not exists!!!" });
+    }
+
+    const secret = process.env.JWT_SECRET + user.password;
+
+    try {
+      const payload = jwt.verify(token, secret);
+      
+      // You can render a template with a form for password reset
+      res.render('reset-password', { username: user.username });
+      
+      // Or you can redirect to a password reset page
+      // res.redirect('/resetPassword');
+      
+      // Alternatively, you can send a message indicating verification
+      // res.send("Verified");
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  } catch (error) {
     res.status(500).json(error);
   }
-})
+});
 
 
 
+// Change the password
+router.post("/reset-password/:id/:token", async (req, res, next) => {
+  const { id } = req.params;
 
+  try {
+    // Fetch user from MySQL
+    const [rows] = await connection.query('SELECT * FROM users WHERE id = ?', [id]);
+    const user = rows[0];
+
+    if (!user) {
+      return res.json({ status: "User not exists!!!" });
+    }
+
+    try {
+      const hashedPass = await bcrypt.hash(req.body.password, 12); // Use a salt factor of 12
+
+      // Update user's password in MySQL
+      await pool.query('UPDATE users SET password = ? WHERE id = ?', [hashedPass, id]);
+
+      res.json({ msg: "Password Updated" });
+    } catch (error) {
+      console.log(error);
+      res.status(500).json(error);
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json(error);
+  }
+});
 
 
 // Exporting
