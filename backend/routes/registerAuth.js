@@ -421,6 +421,40 @@ router.get("/check-cookie", (req, res) => {
   }
 });
 
+// Change the password
+router.post("/reset-password/:id/:token", async (req, res, next) => {
+  const { id, token } = req.params;
+  console.log(id)
+  const user = await User.findOne({ _id: id });
+  if (!user) {
+    return res.json({ status: "User not exists!!!" });
+  }
+  const secret = process.env.JWT_SECRET + user.password
+  try {
+    const payload = jwt.verify(token, secret)
+    
+    // const salt = await bcrypt.genSalt(12);
+    // const hashedPass = await bcrypt.hash(req.body.password, salt);
+
+    const hashedPass = await argon2.hash(req.body.password);
+    await User.updateOne(
+      {
+        _id: id,
+      },
+      {
+        $set: {
+          password: hashedPass,
+        },
+      },
+    );
+    res.json({ msg: "Password Updated" })
+    // }
+  } catch (error) {
+    console.log(error)
+    res.status(500).json(error);
+  }
+})
+
 
 
 

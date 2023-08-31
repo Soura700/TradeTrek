@@ -194,7 +194,7 @@ const Checkout = () => {
   return (
     <>
       <div className="ltn__checkout-area mb-105">
-        <div className="container">
+        <div className="checkout_container">
           <div className="row">
             <div className="col-lg-12">
               <div className="ltn__checkout-inner">
@@ -215,7 +215,7 @@ const Checkout = () => {
                   >
                     <div className="ltn_coupon-code-form ltn__form-box">
                       <p>Please login your accont.</p>
-                      <form action="#">
+                      <form className="checkout_form" action="#">
                         <div className="row">
                           <div className="col-md-6">
                             <div className="input-item input-item-name ltn__custom-icon">

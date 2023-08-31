@@ -13,6 +13,7 @@ import Cart from './components/Cart/Cart';
 import { AuthProvider } from './context/authContext';
 // import Checkout from './pages/Checkout/Checkout';
 import Checkout from './components/Checkout/Checkout';
+import {CartProvider} from "./context/cartContext";
 
 
 
@@ -118,7 +119,9 @@ function App() {
   return (
     <div className="App">
       <AuthProvider>
+        <CartProvider>
         <RouterProvider router={router}/>
+        </CartProvider>
       </AuthProvider>  
     </div>
   );

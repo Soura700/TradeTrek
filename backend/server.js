@@ -75,10 +75,10 @@ app.use("/api/order",orderRoute)
 
 app.use("/api",payment)
 
-app.get("/",(req,res)=>{
-  res.send("Hello")
+// app.get("/",(req,res)=>{
+//   res.send("Hello")
   
-})
+// })
 
 
 

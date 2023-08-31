@@ -146,5 +146,26 @@ router.put("/update/:id",async (req,res)=>{
   }
 })
 
+
+
+router.get("/search/:productname", async (req, res) => {
+  const { productname } = req.params;
+
+  try {
+    const query = `SELECT * FROM products WHERE productName LIKE ? OR product_description LIKE ?`;
+    const queryValue = `%${productname}%`;
+
+    connection.query(query, [queryValue, queryValue], (error, results) => {
+      if (error) {
+        return res.status(500).json({ error: "Database error" });
+      } else {
+        return res.status(200).json(results);
+      }
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Server error" });
+  }
+});
+
 // Exporting
 module.exports = router;

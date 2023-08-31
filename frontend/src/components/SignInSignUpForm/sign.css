@@ -51,6 +51,18 @@ form {
   grid-row: 1 / 2;
 }
 
+/* form>.sign-up-from {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 0rem 5rem;
+  transition: all 0.2s 0.7s;
+  overflow: hidden;
+  grid-column: 1 / 2;
+  grid-row: 1 / 2;
+} */
+
 form.sign-up-form {
   opacity: 0;
   z-index: 1;

@@ -230,7 +230,7 @@ progress {
     color: #6c757d
 }
 
-.container,
+.checkout_container,
 .container-fluid,
 .container-lg,
 .container-md,
@@ -246,7 +246,7 @@ progress {
 
 @media (min-width:576px) {
 
-    .container,
+    .checkout_container,
     .container-sm {
         max-width: 540px
     }
@@ -254,7 +254,7 @@ progress {
 
 @media (min-width:768px) {
 
-    .container,
+    .checkout_container,
     .container-md,
     .container-sm {
         max-width: 720px
@@ -263,7 +263,7 @@ progress {
 
 @media (min-width:992px) {
 
-    .container,
+    .checkout_container,
     .container-lg,
     .container-md,
     .container-sm {
@@ -273,7 +273,7 @@ progress {
 
 @media (min-width:1200px) {
 
-    .container,
+    .checkout_container,
     .container-lg,
     .container-md,
     .container-sm,
@@ -284,7 +284,7 @@ progress {
 
 @media (min-width:1400px) {
 
-    .container,
+    .checkout_container,
     .container-lg,
     .container-md,
     .container-sm,
