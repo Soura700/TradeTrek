@@ -78,7 +78,7 @@ app.use("/api",payment)
 
 app.use("/sendMail",sendMail);
 
-
+app.get("/sendMail",sendMail);
 
 
 

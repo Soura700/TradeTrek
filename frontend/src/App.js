@@ -14,6 +14,8 @@ import { AuthProvider } from './context/authContext';
 // import Checkout from './pages/Checkout/Checkout';
 import Checkout from './components/Checkout/Checkout';
 import {CartProvider} from "./context/cartContext";
+import Reset from './components/Reset/Reset';
+import Forgot from './components/Forgot/Forgot';
 
 
 
@@ -113,6 +115,18 @@ function App() {
     {
       path: "/login",
       element: <SignInSignUpForm />,
+    },
+    {
+      path: "/forgot-password",
+      element: <Forgot />,
+    },
+    // {
+    //   path: "/reset-password/:id/:token",
+    //   element: <Reset />,
+    // },
+    {
+      path: "/reset-password/:id/:token",
+      element: <Reset />,
     },
   ]);
 

@@ -19,10 +19,6 @@ const sendMail = async (sendermail,text)=>{
         subject:"Password Reset Link",
         text:text,
     });
-
-    
-    // console.log(info.messageId);
-    // res.send(info);
 }
 
 

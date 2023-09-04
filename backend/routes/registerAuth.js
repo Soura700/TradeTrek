@@ -7,7 +7,7 @@ const session = require("express-session");
 const MongoStore = require("connect-mongo")(session); // Import the session store
 const cookieParser = require("cookie-parser");
 const jwt = require("jsonwebtoken");
-
+const sendMail = require("../controllers/sendMail");
 
 router.use(cookieParser());
 
@@ -238,45 +238,77 @@ router.post(
 );
 
 
-//   router.post("/register", async (req, res) => {
-//     const username = req.body.username;
-//     const password = req.body.user_password;
-//     const email = req.body.email;
+// router.post(
+//   "/login",
+//   [
+//     check("email", "").notEmpty().withMessage("Email cannot be empty"),
+//     check("user_password", "")
+//       .notEmpty()
+//       .withMessage("Password No. cannot be empty"),
+//   ],
+//   async (req, res) => {
+//     const errors = validationResult(req);
+//     const errorMessages = errors
+//       .array()
+//       .map(
+//         (error) =>
+//           `<div class="alert alert-warning" role="alert">${error.msg}</div>`
+//       )
+//       .join("");
+//     if (!errors.isEmpty()) {
+//       // return res.status(422).json({
+//       //     errors:errors.array()
+//       // });
+//       return res.status(400).send(errorMessages);
+//     } else {
+//       try {
+//         const email = req.body.email;
 
-//     const salt = await bcrypt.genSalt(12);
-//     const hashedPass = await bcrypt.hash(password, salt);
-
-//     try {
-
-//         //check if the user already exists or not(by email)
-//         const userExistsQuery = "SELECT email FROM users WHERE email = ?";
 //         connection.query(
-//             userExistsQuery,
-//             [email],
-//             (error, results) => {
-//                 if (results.length > 0) {
-//                     // User already exists, handle the error
-//                     return res.status(400).json({ errors: 'User already registered' });
-//                 }
+//           "SELECT * FROM users WHERE email = ?",
+//           [email],
+//           async (err, result) => {
+//             if (err) {
+//               return res.status(500).json({ error: "Internal Server Error" });
 //             }
-//         )
 
-//         connection.query(
-//             "INSERT INTO users (username, email, user_password) VALUES (?, ?, ?)",
-//             [username, email, password],
-//             (error, results) => {
-//                 if (error) {
-//                     res.status(500).json(error);
-//                 } else {
-//                     res.status(200).json(results);
-//                 }
+//             if (result.length === 0) {
+//               return res.status(400).json({ error: "User Not Found" });
 //             }
+
+//             const user = result[0];
+
+//             // You should securely compare passwords using a library like bcrypt
+
+//             var password = req.body.user_password;
+
+//             const isPasswordValid = await bcrypt.compare(
+//               password,
+//               user.user_password
+//             );
+
+//             if (!isPasswordValid) {
+//               return res.status(400).json({ error: "Wrong Credentials" });
+//             }
+
+//             req.session.userId = user.id;
+
+//             const userId = user.id.toString();
+//             const customValue = `custom_${userId}`;
+//             res.cookie('session_token', customValue, { httpOnly: true, expires: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000) });
+
+//             // const {password , ...other} = user._doc;
+
+//             res.status(200).json(user);
+//           }
 //         );
-
-//     } catch (error) {
-//         res.status(500).json(error);
+//       } catch (error) {
+//         console.log(error);
+//         res.status(500).json({ error: "Internal Server Error" });
+//       }
 //     }
-// });
+//   }
+// );
 
 router.post(
   "/login",
@@ -296,9 +328,6 @@ router.post(
       )
       .join("");
     if (!errors.isEmpty()) {
-      // return res.status(422).json({
-      //     errors:errors.array()
-      // });
       return res.status(400).send(errorMessages);
     } else {
       try {
@@ -318,8 +347,6 @@ router.post(
 
             const user = result[0];
 
-            // You should securely compare passwords using a library like bcrypt
-
             var password = req.body.user_password;
 
             const isPasswordValid = await bcrypt.compare(
@@ -337,18 +364,57 @@ router.post(
             const customValue = `custom_${userId}`;
             res.cookie('session_token', customValue, { httpOnly: true, expires: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000) });
 
-            // const {password , ...other} = user._doc;
+            // Get the current date and time
+            const currentLoginTime = new Date();
+
+            // Update current_login_time
+            connection.query(
+              "UPDATE users SET current_login_time = ? WHERE id = ?",
+              [currentLoginTime, user.id],
+              (updateError) => {
+                if (updateError) {
+                  console.error("Error updating current login time:", updateError);
+                }
+
+                // Before updating lastLoginTime, check if it's null
+                if (user.lastLoginTime === null) {
+                  // Set lastLoginTime to the same value as current_login_time
+                  connection.query(
+                    "UPDATE users SET lastLoginTime = ? WHERE id = ?",
+                    [currentLoginTime, user.id],
+                    (lastLoginError) => {
+                      if (lastLoginError) {
+                        console.error("Error updating last login time:", lastLoginError);
+                      }
+                    }
+                  );
+                } else {
+                  // Update lastLoginTime with the previous value of current_login_time
+                  connection.query(
+                    "UPDATE users SET lastLoginTime = ? WHERE id = ?",
+                    [user.current_login_time, user.id],
+                    (lastLoginError) => {
+                      if (lastLoginError) {
+                        console.error("Error updating last login time:", lastLoginError);
+                      }
+                    }
+                  );
+                }
+              }
+            );
 
             res.status(200).json(user);
           }
         );
       } catch (error) {
-        console.log(error);
+        console.error(error);
         res.status(500).json({ error: "Internal Server Error" });
       }
     }
   }
 );
+
+
 
 router.get("/getSession", (req, res) => {
   console.log(req.session.userId);
@@ -395,8 +461,6 @@ router.get("/check-cookie", (req, res) => {
   // Check if the session_token cookie exists
   if (req.cookies.user) {
 
-
-
     if(req.cookies.session_token){
 
     
@@ -429,62 +493,57 @@ router.post("/forgot-password", async (req, res) => {
     const email = req.body.email;
 
     // Fetch user from MySQL
-    const [rows] = await connection.query('SELECT * FROM users WHERE email = ?', [email]);
-    const user = rows[0];
 
-    if (user) {
-      // Create a one-time link for 15 minutes validation
-      const secret = process.env.JWT_SECRET + user.user_password;
+    connection.query('SELECT * FROM users WHERE email = ?', email,async (err,result)=>{
+        if(err){
+          return res.status(500).json(err)
+        }else{
+          if(result.length > 0){
+            console.log(result)
+            console.log(result[0].user_password)
+            const secret = process.env.JWT_SECRET + result[0].user_password;
+            const payload = {
+              email: result.email,
+              id: result.id
+            }
+            const jwtToken = jwt.sign(payload, secret, { expiresIn: '15m' });
 
-      const payload = {
-        email: user.email,
-        id: user.id
-      }
+            const emailContent = `Hello, Please click the link to reset your password http://localhost:3000/reset-password/${result[0].id}/${jwtToken}`;
 
-      const jwtToken = jwt.sign(payload, secret, { expiresIn: '15m' });
-
-      const emailContent = `Hello, Please click the link to reset your password http://localhost:3000/reset-password/${user.id}/${jwtToken}`;
-
-      // Send the email using your preferred method (not shown here)
-
-      res.json({ msg: 'Password reset link sent successfully!' });
-    } else {
-      res.status(400).json({ msg: "User is not registered..." });
-    }
+            await sendMail(email,emailContent)
+      
+            // Send the email using your preferred method (not shown here)
+            console.log(emailContent)
+      
+            res.json({ msg: 'Password reset link sent successfully!' });
+          }
+        }
+    })
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "Error occurred", error });
   }
 });
 
+
 router.get("/reset-password/:id/:token", async (req, res) => {
   const { id, token } = req.params;
 
   try {
     // Fetch user from MySQL
-    const [rows] = await pool.query('SELECT * FROM users WHERE id = ?', [id]);
-    const user = rows[0];
 
-    if (!user) {
-      return res.json({ status: "User not exists!!!" });
-    }
+    connection.query('SELECT * FROM users WHERE id = ?', id, async (err,result)=>{
+      if(err){
+        return res.status(500).json(err)
+      }else{
+        const secret = process.env.JWT_SECRET + user.user_password;
+        const payload = jwt.verify(token, secret);
 
-    const secret = process.env.JWT_SECRET + user.password;
+        res.render('/reset-password', { userId: user.id });
+      }
+    })
 
-    try {
-      const payload = jwt.verify(token, secret);
-      
-      // You can render a template with a form for password reset
-      res.render('reset-password', { username: user.username });
-      
-      // Or you can redirect to a password reset page
-      // res.redirect('/resetPassword');
-      
-      // Alternatively, you can send a message indicating verification
-      // res.send("Verified");
-    } catch (error) {
-      res.status(500).json(error);
-    }
+
   } catch (error) {
     res.status(500).json(error);
   }
@@ -498,24 +557,26 @@ router.post("/reset-password/:id/:token", async (req, res, next) => {
 
   try {
     // Fetch user from MySQL
-    const [rows] = await connection.query('SELECT * FROM users WHERE id = ?', [id]);
-    const user = rows[0];
 
-    if (!user) {
-      return res.json({ status: "User not exists!!!" });
-    }
 
-    try {
-      const hashedPass = await bcrypt.hash(req.body.password, 12); // Use a salt factor of 12
+    connection.query('SELECT * FROM users WHERE id = ?', id , async (err,result)=>{
+      if(err){
+        returnmres.status(500).json(err)
+      }else{
+        const hashedPass = await bcrypt.hash(req.body.password, 12); // Use a salt factor of 12
 
-      // Update user's password in MySQL
-      await pool.query('UPDATE users SET password = ? WHERE id = ?', [hashedPass, id]);
+        // Update user's password in MySQL
+         connection.query('UPDATE users SET user_password = ? WHERE id = ?', [hashedPass, id] , (error,result)=>{
+          if(error){
+            return res.status(500).json(error)
+          }else{
+            res.json({ msg: "Password Updated" });
+          }
+         });
+   
+      }
+    });
 
-      res.json({ msg: "Password Updated" });
-    } catch (error) {
-      console.log(error);
-      res.status(500).json(error);
-    }
   } catch (error) {
     console.log(error);
     res.status(500).json(error);

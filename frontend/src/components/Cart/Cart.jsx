@@ -33,6 +33,8 @@ const Cart = () => {
     checkAuthentication(); // Call this when the component mounts
   }, []);
 
+  console.log("Is Logged IN" + isLoggedIn);
+
   useEffect(() => {
     async function fetchCartProducts() {
       try {
