@@ -342,7 +342,7 @@ router.post(
             }
 
             if (result.length === 0) {
-              return res.status(400).json({ error: "User Not Found" });
+              return res.status(401).json({ error: "User Not Found" });
             }
 
             const user = result[0];
@@ -355,7 +355,7 @@ router.post(
             );
 
             if (!isPasswordValid) {
-              return res.status(400).json({ error: "Wrong Credentials" });
+              return res.status(401).json({ error: "Wrong Credentials" });
             }
 
             req.session.userId = user.id;

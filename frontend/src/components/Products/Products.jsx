@@ -54,13 +54,31 @@ import React, { useEffect, useState } from "react";
 import css from "./Products.module.css";
 import Plane from "../../assets/plane.png";
 import { useAutoAnimate } from '@formkit/auto-animate/react';
+
+import { useAuth } from "../../context/authContext";
+
+import { Link } from "react-router-dom";
+
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+
 import axios from "axios";
 
 const Products = () => {
+
+
   const [parent] = useAutoAnimate(/* optional config */);
+
+  const { isLoggedIn, checkAuthentication } = useAuth();
+
+  
+
   const [originalProducts, setOriginalProducts] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [MenuProducts, setMenuProducts] = useState([]);
+
+
 
   useEffect(() => {
     async function fetchProducts() {
@@ -85,6 +103,13 @@ const Products = () => {
       setMenuProducts(originalProducts.filter((product) => product.categories === selectedCategory));
     }
   }, [selectedCategory, originalProducts]);
+
+
+  useEffect(() => {//Calling the function when first render happens of the app...to update the isLoggeid from false to true..by checking the condition.
+    checkAuthentication(); // Call this when the component mounts
+  }, []);
+
+
 
   const filter = (category) => {
     setSelectedCategory(category);
@@ -133,6 +158,8 @@ const Products = () => {
     }
   }
 
+  const notify = () => toast("Items are added to the cart");//Toastify
+
   return (
     <div className={css.container}>
       <img src={Plane} alt="" />
@@ -153,11 +180,36 @@ const Products = () => {
                   <span>{product.product_description}</span>
                 </div>
                 <span>{product.price}$</span>
+
+                {product.countInStock ? (
+
+                  console.log(product.countInStock),
+
                 <button style={{background:"none"}} onClick={() => addToCart(product.p_id)}>
-                <div>
+
+                  {isLoggedIn ? (
+                       <>
+                       {/* <Link to={`/cart/${id}/${productName}`}>
+                         Add to Cart
+                       </Link> */}
+                       <ToastContainer/>
+
+                       <i class="fas fa-shopping-cart"></i>
+                     </>
+                  ):(
+                    <>
+                        
+                    <Link to="/login">Add To Cart</Link>
+                  </>
+                  )}
+
+                {/* <div>
                       Add To Cart
-                </div>
+                </div> */}
                 </button>
+                ):(
+                    <div>Not Available Now</div>
+                )}
               </div>
               <img src={`http://localhost:5000/${product.images[0]}`} alt="" className="img-p" />
             </div>

@@ -2,6 +2,7 @@ var express = require("express");
 var router = express();
 const bcrypt = require("bcrypt");
 const connection = require("../connection");
+const io = require("../socket")
 
 // router.post("/add-to-cart", (req, res) => {
 //   const user_id = req.body.user_id;
@@ -187,6 +188,7 @@ router.post("/add-to-cart", (req, res) => {
                 console.log(insertErr);
                 return res.status(500).json(insertErr);
               }
+              io.emit('create_cart' , {product_id:product_id , cartItemCount:cartItemCount , user_id : user_id})
               res.status(200).json(insertResult);
             }
           );

@@ -8,9 +8,8 @@ import axios from "axios";
 
 import "./singleProduct.css";
 
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const SingleProduct = () => {
   const { isLoggedIn, checkAuthentication } = useAuth();
@@ -21,10 +20,7 @@ const SingleProduct = () => {
   const [img, setImg] = useState(null);
   const [quantity, setQuantity] = useState(1);
 
-
-
-  useEffect(  () => {
-    
+  useEffect(() => {
     async function fetchSliderProducts() {
       try {
         const response = await axios.get(
@@ -32,8 +28,6 @@ const SingleProduct = () => {
         );
 
         const data = response.data;
-
-        
 
         const imagesArray = JSON.parse(data[0].images);
 
@@ -48,15 +42,12 @@ const SingleProduct = () => {
     }
 
     fetchSliderProducts();
-
   }, []);
 
-  useEffect(() => {//Calling the function when first render happens of the app...to update the isLoggeid from false to true..by checking the condition.
-    checkAuthentication(); // Call this when the component mounts
+  // useEffect(() => {//Calling the function when first render happens of the app...to update the isLoggeid from false to true..by checking the condition.
+  //   checkAuthentication(); // Call this when the component mounts
 
-  }, []);
-  
-  
+  // }, []);
 
   const handleImg = (imageUrl) => {
     //On clickng the img in the select image div the image will be set to the clickd image url in the img-showcase section
@@ -64,26 +55,18 @@ const SingleProduct = () => {
     setImg(imageUrl);
   };
 
-
-
-
   const handleCount = () => {
     // alert("Hello");
-    if(quantity<singleProduct[0].countInStock){
+    if (quantity < singleProduct[0].countInStock) {
       setQuantity(quantity + 1);
-
     }
     // setQuantity(quantity + 1);
   };
 
-
-
-
-    const handleCart = async (event) => { //Adding product to the cart 
-    
+  const handleCart = async (event) => {
+    //Adding product to the cart
 
     try {
-
       const response = await fetch(
         "http://localhost:5000/api/auth/check-cookie",
         {
@@ -92,46 +75,39 @@ const SingleProduct = () => {
         }
       );
 
+      const product = await axios.get(
+        "http://localhost:5000/api/product/singleProduct/" + id
+      );
 
-        const product = await axios.get(
-          "http://localhost:5000/api/product/singleProduct/" + id
-        );
+      const product_data = product.data;
 
-        const product_data = product.data;
+      var product_price = product_data[0].price;
 
-         var product_price = product_data[0].price;
-
-         alert(product_price)
+      alert(product_price);
 
       const data = await response.json();
-
 
       const data1 = {
         user_id: data,
         product_id: id,
         cartItemCount: quantity,
-        totalPrice: product_price * quantity ,
+        totalPrice: product_price * quantity,
         // is_active:1
-      }
+      };
 
-
-      const cartRes =  await axios.post("http://localhost:5000/api/cart/add-to-cart", data1 );
-
-
-      
+      const cartRes = await axios.post(
+        "http://localhost:5000/api/cart/add-to-cart",
+        data1
+      );
     } catch (error) {
       console.error("Cart error:", error);
       // Handle error
     }
-
-    
   };
 
-
-  const notify = () => toast("Items are added to the cart");//Toastify
+  const notify = () => toast("Items are added to the cart"); //Toastify
 
   return (
-    
     <div class="card-wrapper">
       <div class="card_single">
         <div class="product-imgs">
@@ -285,17 +261,13 @@ const SingleProduct = () => {
                   value={quantity}
                   onClick={handleCount}
                 />
-                {slide.countInStock ? (
+                {/* {slide.countInStock ? (
                   // <button type="button" class="btn" onClick={{handleCart,notify}} >Add To Cart 
                   <button type="button" className="btn_single" onClick={()=>{ handleCart() ;  notify() ;} }>Add To Cart 
 
                     {isLoggedIn ? (
                       <>
-                        {/* <Link to={`/cart/${id}/${productName}`}>
-                          Add to Cart
-                        </Link> */}
                         <ToastContainer/>
-
                         <i class="fas fa-shopping-cart"></i>
                       </>
                     ) : (
@@ -309,6 +281,27 @@ const SingleProduct = () => {
                   </button>
                 ) : (
                   " "
+                )} */}
+
+                {slide.countInStock > 0 && (
+                  <button
+                    type="button"
+                    className="btn_single"
+                    onClick={() => {
+                      if (isLoggedIn) {
+                        handleCart();
+                        notify();
+                      } else {
+                        // Redirect to login page
+                        window.location.href = "/login";
+                      }
+                    }}
+                  >
+                     <i className="fas fa-shopping-cart"></i>
+                    Add To Cart
+                    <ToastContainer />
+                    {/* <i className="fas fa-shopping-cart"></i> */}
+                  </button>
                 )}
 
                 <button type="button" class="btn_single">
