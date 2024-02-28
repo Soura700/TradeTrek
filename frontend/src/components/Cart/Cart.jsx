@@ -328,31 +328,6 @@ const Cart = () => {
                         </td>
                       </tr>
                     )}
-                    {/* {cartData.map((slide, i) => (
-                      // alert(typeof (slide.totalPrice));
-                      <>
-                        <tr>
-                          <td>Cart Subtotal</td>
-                          <td>${slide.totalPrice}</td>
-                        </tr>
-                        <tr>
-                          <td>Shipping and Handling</td>
-                          <td>$15.00</td>
-                        </tr>
-                        <tr>
-                          <td>VAT</td>
-                          <td>$00.00</td>
-                        </tr>
-                        <tr>
-                          <td>
-                            <strong>Order Total</strong>
-                          </td>
-                          <td>
-                            <strong>${15 + +slide.totalPrice}</strong>
-                          </td>
-                        </tr>
-                      </>
-                    ))} */}
                   </tbody>
                 </table>
 
