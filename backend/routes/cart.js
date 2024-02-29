@@ -173,7 +173,8 @@ router.post("/add-to-cart", (req, res) => {
                 if (updateErr) {
                   console.log(updateErr);
                   return res.status(500).json(updateErr);
-                }
+                }              
+                io.emit('create_cart' , {product_id:product_id , cartItemCount:cartItemCount , user_id : user_id})
                 res.status(200).json(updateResult);
               }
             );

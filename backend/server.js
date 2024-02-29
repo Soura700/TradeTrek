@@ -9,6 +9,7 @@ var cartRoute = require("./routes/cart")
 var checkoutRoute = require("./routes/checkout")
 var orderRoute = require("./routes/order");
 const payment = require("./routes/payment")
+const server = require("http").Server(app)
 const cors = require("cors");
 const sendMail = require("./controllers/sendMail")
 
@@ -30,6 +31,12 @@ app.use("/upload",express.static("upload"));
 //     password: process.env.PASSWORD,
 //     database: process.env.DATABASE
 //   });
+
+// const io = require("socket.io")(server, {
+//   cors: {
+//     origin: "*",
+//   },
+// }).listen(5500);
 
 app.use(cors({
   origin: 'http://localhost:3000', 
@@ -58,6 +65,10 @@ PORT=5000;
 // route for the template engine
 // app.get("/",(req,res)=>{
 //     res.render('text');
+// })
+
+// io.on("connection",(socket)=>{
+//   socket.on("")
 // })
 
 app.get("/",(req,res)=>{
