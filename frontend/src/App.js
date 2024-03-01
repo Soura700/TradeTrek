@@ -59,8 +59,6 @@ function App() {
           };
         });
 
-
-
         setCartData(newData);
 
       } catch (error) {

@@ -6,11 +6,10 @@ import { GoArrowDownRight } from "react-icons/go";
 import { Link } from "react-router-dom";
 import { io } from "socket.io-client";
 
-
 const Header = ({ value }) => {
   var count = 0;
 
-  const activeProducts = value.filter(
+  const activeCartProduct = value.filter(
     (slide) => slide.is_active === 1 && (count = count + 1)
   );
 
@@ -19,7 +18,11 @@ const Header = ({ value }) => {
   const [cookie, setCookie] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [suggestions, setSuggestions] = useState([]);
+  const [activeProducts, setActiveProducts] = useState([]);
+
   const [socket, setSocket] = useState(null); //For setting the socket connection
+
+
 
   const toggleMenu = () => {
     setShowMenu((ShowMenu) => !ShowMenu);
@@ -64,24 +67,85 @@ const Header = ({ value }) => {
     }
 
     fetchCartProducts();
+    setActiveProducts(activeCartProduct);
   }, []);
 
-  useEffect(()=>{
-    if(socket){
-      alert("Called");
-      socket.on("create_cart",({product_id,cartItemCount,user_id })=>{
-        alert(product_id  + " " +  cartItemCount + " " +  user_id);
-      })
+
+
+  useEffect(() => {
+    if (socket) {
+      socket.on("create_cart", async ({ product_id, cartItemCount, user_id }) => {
+        // Fetch the product details based on product_id
+        const existingProductIndex = activeProducts.findIndex(
+          (product) => product.p_id === product_id
+        );
+        if (existingProductIndex !== -1) {
+          const updatedActiveProducts = [...activeProducts];
+          updatedActiveProducts[existingProductIndex].total += cartItemCount;
+          setActiveProducts(updatedActiveProducts);
+        }
+        else{
+          try {
+            const response = await fetch(`http://localhost:5000/api/product/singleProduct/${product_id}`);
+            const productDetails = await response.json();
+
+            const imagesArray = JSON.parse(productDetails[0].images);
+
+            const newProduct = {
+              p_id: product_id,
+              productName: productDetails[0].name,
+              totalPrice: productDetails[0].price,
+              images:imagesArray,
+              total: cartItemCount
+            };
+  
+            // Update the state to include the new product
+            setActiveProducts([...activeProducts, newProduct]);
+          } catch (error) {
+            console.error("Error fetching product details:", error);
+          }
+        }
+      });
     }
     return () => {
       if (socket) {
         socket.off("create_cart");
       }
     };
-  })
+  }, [socket]);
+
+
 
   const handleInputChange = (event) => {
     setSearchTerm(event.target.value);
+  };
+
+  // Define a function to fetch product details by ID
+  const fetchProductDetails = async (user_id) => {
+    try {
+      const response = await fetch(
+        "http://localhost:5000/api/cart/get/cart/" + user_id
+      );
+      const productDetails = await response.json();
+
+      const newData = productDetails.map((product) => {
+        const imagesArray = JSON.parse(product.images);
+        return {
+          ...product,
+          images: imagesArray,
+        };
+      });
+
+      // const imagesArray = JSON.parse(productDetails.images); // Parsing images to array
+      // const processedProductDetails = {
+      //   ...productDetails,
+      //   images: imagesArray
+      // };
+      return newData;
+    } catch (error) {
+      console.log(error);
+      throw new Error("Error fetching product details");
+    }
   };
 
   // const handleKeyPress = (event) => {
@@ -132,8 +196,6 @@ const Header = ({ value }) => {
     totalPrice = totalPrice + +value[i].totalPrice;
   }
 
-
-
   return (
     <div className={css.container}>
       <div className={css.logo}>
@@ -169,8 +231,11 @@ const Header = ({ value }) => {
           {suggestions.length > 0 && (
             <div className={css.suggestion_box}>
               {suggestions.map((suggestion) => (
-                <Link key={suggestion.id} to={`/singleProduct/${suggestion.p_id}/${suggestion.productName}`}>
-                <div key={suggestion.id}>{suggestion.productName}</div>
+                <Link
+                  key={suggestion.id}
+                  to={`/singleProduct/${suggestion.p_id}/${suggestion.productName}`}
+                >
+                  <div key={suggestion.id}>{suggestion.productName}</div>
                 </Link>
               ))}
             </div>
@@ -205,7 +270,6 @@ const Header = ({ value }) => {
             {/* {value.map((slide, i) => ( */}
             {count > 0 ? (
               activeProducts.map((slide, index) => {
-                console.log(slide + slide.productName);
                 return (
                   <div className={`${css.miniCartItem} clearfix`}>
                     <div className={css.miniCartImg}>
@@ -230,46 +294,8 @@ const Header = ({ value }) => {
             ) : (
               <h5 style={{ textAlign: "center" }}>Cart Is Empty</h5>
             )}
-            {/* <div className={`${css.miniCartItem} clearfix`}>
-                <div className={css.miniCartImg}>
-                  <a href="#">
-                    <img src={slide.images[0]} alt="Image" />
-                  </a>
-                  <span className={css.miniCartItemDelete}>
-                    <i className={css.iconCancel}></i>
-                  </span>
-                </div>
-                <div className={css.miniCartInfo}>
-                  <h6>
-                    <a href="#">{slide.productName}</a>
-                  </h6>
-                  <span className={css.miniCartQuantity}>{slide.total} x ${slide.totalPrice}</span>
-                </div>
-              </div> */}
-
-            {/* ))} */}
-
-            {/* Replace this with a loop that maps over the products */}
-            {/* <div className={`${css.miniCartItem} clearfix`}>
-              <div className={css.miniCartImg}>
-                <a href="#">
-                  <img src="img/product/4.png" alt="Image" />
-                </a>
-                <span className={css.miniCartItemDelete}>
-                  <i className={css.iconCancel}></i>
-                </span>
-              </div>
-              <div className={css.miniCartInfo}>
-                <h6>
-                  <a href="#">Thermometer Gun</a>
-                </h6>
-                <span className={css.miniCartQuantity}>1 x $68.00</span>
-              </div>
-            </div> */}
-            {/* End of loop */}
           </div>
 
-          {/*  */}
 
           {count > 0 ? (
             <div className={css.miniCartFooter}>
