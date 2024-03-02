@@ -21,6 +21,32 @@ const SingleProduct = () => {
   const [quantity, setQuantity] = useState(1);
 
   useEffect(() => {
+    // Function to call API when component mounts
+    async function callApi() {
+      try {
+        const cookie = await fetch(
+          "http://localhost:5000/api/auth/check-cookie",
+          {
+            method: "GET",
+            credentials: "include",
+          }
+        );
+        const cookieData = await cookie.json();
+
+        // Make API call to track user visit
+        await axios.post("http://localhost:5000/api/interaction/logUserView", {
+          user_id: cookieData,
+          product_id: id,
+        });
+      } catch (error) {
+        console.error("Error calling API:", error);
+      }
+    }
+
+    callApi(); // Call the function when component mounts
+  }, [isLoggedIn, checkAuthentication, id]);
+
+  useEffect(() => {
     async function fetchSliderProducts() {
       try {
         const response = await axios.get(
@@ -297,7 +323,7 @@ const SingleProduct = () => {
                       }
                     }}
                   >
-                     <i className="fas fa-shopping-cart"></i>
+                    <i className="fas fa-shopping-cart"></i>
                     Add To Cart
                     <ToastContainer />
                     {/* <i className="fas fa-shopping-cart"></i> */}

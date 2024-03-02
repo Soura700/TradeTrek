@@ -11,7 +11,8 @@ var orderRoute = require("./routes/order");
 const payment = require("./routes/payment")
 const server = require("http").Server(app)
 const cors = require("cors");
-const sendMail = require("./controllers/sendMail")
+const sendMail = require("./controllers/sendMail");
+const interactionRoute = require("./routes/interaction");
 
 
 
@@ -89,7 +90,10 @@ app.use("/api",payment)
 
 app.use("/sendMail",sendMail);
 
+app.use("/api/interaction" ,interactionRoute);
+
 app.get("/sendMail",sendMail);
+
 
 
 
