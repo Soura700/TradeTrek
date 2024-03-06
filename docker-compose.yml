@@ -1,3 +1,35 @@
+# version: '3'
+
+# services:
+#   frontend:
+#     build:
+#       context: ./frontend
+#       dockerfile: Dockerfile
+#     ports:
+#       - "3000:3000"
+#     depends_on:
+#       - backend
+
+#   backend:
+#     build:
+#       context: ./backend
+#       dockerfile: Dockerfile
+#     ports:
+#       - "5000:5000"
+#     depends_on:
+#       - database
+
+#   database:
+#     # Configuration for your SQL database service
+#     # Replace with your specific database configuration
+#     image: mysql:latest
+#     environment:
+#       MYSQL_HOST: host.docker.internal
+#       MYSQL_USER: root
+#       MYSQL_PASSWORD: root123
+#       MYSQL_DATABASE: ecommerce
+#     network_mode: host  # Use the host network mode
+
 version: '3'
 
 services:
@@ -16,16 +48,15 @@ services:
       dockerfile: Dockerfile
     ports:
       - "5000:5000"
+    environment:
+      MYSQL_HOST: your_host_ip  # Replace 'your_host_ip' with your local machine's IP address
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root123
+      MYSQL_DATABASE: ecommerce
     depends_on:
       - database
 
   database:
-    # Configuration for your SQL database service
-    # Replace with your specific database configuration
     image: mysql:latest
     environment:
-      MYSQL_HOST: host.docker.internal
-      MYSQL_USER: root
-      MYSQL_PASSWORD: root123
-      MYSQL_DATABASE: ecommerce
-    network_mode: host  # Use the host network mode
+      MYSQL_ROOT_PASSWORD: root123
