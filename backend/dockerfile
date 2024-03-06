@@ -6,11 +6,14 @@ COPY package.json .
 
 RUN  npm install
 
+RUN npm install nodemon --save-dev   # Add this line to install nodemon
+
+
 COPY . .
 
 EXPOSE 5000
 
-CMD [ "nodemon" , "server.js" ]
+CMD [ "node" , "server.js" ]
 
 
 
