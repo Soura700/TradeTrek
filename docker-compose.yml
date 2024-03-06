@@ -24,7 +24,8 @@ services:
     # Replace with your specific database configuration
     image: mysql:latest
     environment:
-      MYSQL_ROOT_PASSWORD: root123
-      MYSQL_DATABASE: ecommerce
+      MYSQL_HOST: localhost
       MYSQL_USER: root
       MYSQL_PASSWORD: root123
+      MYSQL_DATABASE: ecommerce
+    network_mode: host  # Use the host network mode
