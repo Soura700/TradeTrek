@@ -72,7 +72,7 @@ services:
     ports:
       - "5000:5000"
     environment:
-      MYSQL_HOST: 127.0.0.1:3306  # Replace 'your_host_ip' with your host machine's IP address
+      MYSQL_HOST: localhost  # Replace 'your_host_ip' with your host machine's IP address
       MYSQL_USER: root
       MYSQL_PASSWORD: root123
       MYSQL_DATABASE: ecommerce
