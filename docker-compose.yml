@@ -30,18 +30,41 @@
 #       MYSQL_DATABASE: ecommerce
 #     network_mode: host  # Use the host network mode
 
+# version: '3'
+
+# services:
+#   frontend:
+#     build:
+#       context: ./frontend
+#       dockerfile: Dockerfile
+#     ports:
+#       - "3000:3000"
+#     depends_on:
+#       - backend
+
+#   backend:
+#     build:
+#       context: ./backend
+#       dockerfile: Dockerfile
+#     ports:
+#       - "5000:5000"
+#     environment:
+#       MYSQL_HOST: your_host_ip  # Replace 'your_host_ip' with your local machine's IP address
+#       MYSQL_USER: root
+#       MYSQL_PASSWORD: root123
+#       MYSQL_DATABASE: ecommerce
+#     depends_on:
+#       - database
+
+#   database:
+#     image: mysql:latest
+#     environment:
+#       MYSQL_ROOT_PASSWORD: root123
+
+
 version: '3'
 
 services:
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    ports:
-      - "3000:3000"
-    depends_on:
-      - backend
-
   backend:
     build:
       context: ./backend
@@ -49,7 +72,7 @@ services:
     ports:
       - "5000:5000"
     environment:
-      MYSQL_HOST: your_host_ip  # Replace 'your_host_ip' with your local machine's IP address
+      MYSQL_HOST: 127.0.0.1:3306  # Replace 'your_host_ip' with your host machine's IP address
       MYSQL_USER: root
       MYSQL_PASSWORD: root123
       MYSQL_DATABASE: ecommerce
