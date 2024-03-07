@@ -13,6 +13,7 @@ const server = require("http").Server(app)
 const cors = require("cors");
 const sendMail = require("./controllers/sendMail");
 const interactionRoute = require("./routes/interaction");
+const axios = require( 'axios' );
 
 
 
@@ -75,6 +76,50 @@ PORT=5000;
 app.get("/",(req,res)=>{
   res.send("Hello")
 })
+
+// app.get("/api/recommendations", async (req, res) => {
+//   try {
+//       const { user_id } = req.query; // Get user_id from query parameters
+//       const pythonAPIUrl = "http://localhost:5000/recommendations"; // URL of the Python recommendation API
+
+//       // Make an HTTP GET request to the Python API
+//       const response = await axios.post(pythonAPIUrl, { params: { user_id } });
+
+//       // Extract recommendations from the response
+//       const recommendations = response.data.recommendations;
+
+//       // Send recommendations to the client
+//       res.json({ recommendations });
+//   } catch (error) {
+//       console.error("Error fetching recommendations:", error.message);
+//       res.status(500).json({ error: "Internal server error" });
+//   }
+// });
+
+app.get('/api/recommendations', async (req, res) => {
+  try {
+      // Extract the user ID from the request parameters
+      const user_id = req.body.user_id;
+
+      console.log(user_id);
+
+      // Make a POST request to the Flask API to fetch recommendations
+      const response = await axios.post('http://localhost:5000/recommendations', {
+          user_id: user_id
+      });
+
+      // Extract recommendations from the response
+      const recommendations = response.data;
+
+      // Send recommendations as a JSON response
+      res.json({ user_id: user_id, recommendations: recommendations });
+  } catch (error) {
+    console.log(error);
+      // If an error occurs, send an error response
+      console.error('Error fetching recommendations:', error.message);
+      res.status(500).json({ error: 'Internal server error' });
+  }
+});
 
 app.use("/api/auth",registerAuth);
 
