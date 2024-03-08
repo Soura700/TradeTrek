@@ -289,6 +289,8 @@ router.put("/update_cart/:user_id", (req, res) => {
                       return res.status(500).json(updateErr);
                     }
                     res.status(200).json(updateResult);
+                    console.log("user_id:" + user_id + " " + "product_id :" +  product_id + " " +  "finalPrice :" +  finalPrice + " " + "updatedCartItemCount :"+ updatedCartItemCount)
+                    io.emit("update_cart" , {user_id:user_id , product_id : product_id , finalPrice : finalPrice ,  updatedCartItemCount : updatedCartItemCount})
                   }
                 );
               } else {

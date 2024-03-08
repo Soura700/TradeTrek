@@ -3,6 +3,7 @@ import { useAuth } from "../../context/authContext";
 import styles from "./cart.module.css";
 import axios from "axios";
 import { Link } from "react-router-dom";
+import { io } from "socket.io-client";
 
 const Cart = () => {
   const { isLoggedIn, checkAuthentication } = useAuth();
@@ -11,7 +12,8 @@ const Cart = () => {
 
   const [cookie, setCookie] = useState(null);
 
-  console.log(cartData);
+  const [socket, setSocket] = useState(null); //For setting the socket connection
+
 
   var count = 0;
 
@@ -21,6 +23,8 @@ const Cart = () => {
 
   console.log("Count" + count);
   console.log(activeProducts);
+
+  console.log(cartData);
 
   const handleQuantityChange = (index, newQuantity) => {
     const updatedCartData = [...cartData];
@@ -34,6 +38,14 @@ const Cart = () => {
   }, []);
 
   console.log("Is Logged IN" + isLoggedIn);
+
+  useEffect(() => {
+    const newSocket = io("http://localhost:8000");
+    setSocket(newSocket);
+    return () => {
+      newSocket.disconnect();
+    };
+  }, []);
 
   useEffect(() => {
     async function fetchCartProducts() {
@@ -72,6 +84,44 @@ const Cart = () => {
     fetchCartProducts();
   }, []);
 
+  useEffect(() => {
+    if (socket) {
+      socket.on("update_cart" , async ({user_id , product_id , finalPrice ,  updatedCartItemCount})=>{
+        alert("user_id:" + user_id + " " + "product_id :" +  product_id + " " +  "finalPrice :" +  finalPrice + " " + "updatedCartItemCount :"+ updatedCartItemCount)
+      })
+      return () => {
+        if (socket) {
+          socket.off("update_cart");
+        }
+      };
+    }
+  }, [socket]);
+
+
+  useEffect(() => {
+    if (socket) {
+      socket.on("update_cart", async ({user_id , product_id , finalPrice ,  updatedCartItemCount}) => {
+        // Find the index of the product in the cartData array
+        const productIndex = cartData.findIndex(item => item.p_id === product_id);
+        if (productIndex !== -1) {
+          // Create a copy of the cartData array
+          const updatedCartData = [...cartData];
+          // Update the totalPrice of the corresponding product
+          updatedCartData[productIndex].totalPrice = parseFloat(finalPrice);
+          // Update the cartData state with the updated array
+          setCartData(updatedCartData);
+        }
+      });
+      return () => {
+        if (socket) {
+          socket.off("update_cart");
+        }
+      };
+    }
+  }, [cartData, socket]);
+  
+  
+
   const checkProduct = async (id) => {
     const product = await axios.get(
       "http://localhost:5000/api/product/singleProduct/" + id
@@ -85,7 +135,6 @@ const Cart = () => {
   };
 
   const updateCartItem = async (productId, newQuantity) => {
-    alert("Clled 1111");
     const cookie = await fetch("http://localhost:5000/api/auth/check-cookie", {
       method: "GET",
       credentials: "include",
@@ -110,6 +159,12 @@ const Cart = () => {
     }
   };
 
+  // Calculate total price for all items in the cart
+  const totalCartPrice = cartData.reduce(
+    (total, item) => total + parseFloat(item.totalPrice),
+    0
+  );
+
   return (
     <>
       <div className="heading" style={{ marginLeft: "10px" }}>
@@ -125,9 +180,8 @@ const Cart = () => {
                   <table className={styles["table"]}>
                     <tbody>
                       {count > 0 ? (
-                        activeProducts.map((slide, i) => (
-                          // quantity = slide.total,
-                          <tr>
+                        cartData.map((slide, i) => (
+                          <tr key={i}>
                             <td className={styles["cart-product-remove"]}>
                               <a href="#">x</a>
                             </td>
@@ -155,25 +209,18 @@ const Cart = () => {
                             <td className={styles["cart-product-quantity"]}>
                               <div className={styles["cart-plus-minus"]}>
                                 <button
-                                  onClick={
-                                    async () => {
-                                      const isProductAvailable =
-                                        await checkProduct(slide.p_id);
-                                      if (isProductAvailable > slide.total) {
-                                        const newQuantity = slide.total + 1;
+                                  onClick={async () => {
+                                    const isProductAvailable =
+                                      await checkProduct(slide.p_id);
+                                    if (isProductAvailable > slide.total) {
+                                      const newQuantity = slide.total + 1;
 
-                                        handleQuantityChange(
-                                          i,
-                                          slide.total + 1
-                                        );
-                                        updateCartItem(slide.p_id, newQuantity);
-                                      } else {
-                                        alert("No More Product Available");
-                                      }
+                                      handleQuantityChange(i, slide.total + 1);
+                                      updateCartItem(slide.p_id, newQuantity);
+                                    } else {
+                                      alert("No More Product Available");
                                     }
-
-                                    // handleQuantityChange( i , slide.total + 1)}
-                                  }
+                                  }}
                                   type="button"
                                   className={styles["cart-plus"]}
                                   data-product-id="1"
@@ -217,71 +264,6 @@ const Cart = () => {
                           </td>
                         </tr>
                       )}
-                      {/* {cartData.map((slide, i) => (
-                        // quantity = slide.total,
-                        <tr>
-                          <td className={styles["cart-product-remove"]}>
-                            <a href="#">x</a>
-                          </td>
-                          <td className={styles["cart-product-image"]}>
-                            <a href={`/singleProduct/${slide.p_id}/${slide.productName}`}>
-                              <img src={`http://localhost:5000/${slide.images[0]}`} alt="" key={i} />
-                            </a>
-                          </td>
-                          <td className={styles["cart-product-info"]}>
-                            <h4>
-                              <a href="product-details.html">{slide.productName}</a>
-                            </h4>
-                          </td>
-                          <td className={styles["cart-product-price"]}>${slide.totalPrice}</td>
-                          <td className={styles["cart-product-quantity"]}>
-                            <div className={styles["cart-plus-minus"]}>
-
-                              <button onClick={ async () => {
-
-                                  const isProductAvailable= await checkProduct(slide.p_id);
-                                  if(isProductAvailable > slide.total){
-
-                                    const newQuantity = slide.total + 1;
-                                    
-                                    handleQuantityChange( i , slide.total + 1);
-                                    updateCartItem(slide.p_id , newQuantity )
-                                  }
-                                    
-                                    else{
-                                      alert("No More Product Available")
-                                    }
-
-                                  }
-
-                                  // handleQuantityChange( i , slide.total + 1)}
-                              }
-                                type="button"
-                                className={styles["cart-plus"]}
-                                data-product-id="1"
-                              >
-                                +
-                              </button>
-                              <input
-                                type="text"
-                                value={slide.total}
-                                name="qtybutton"
-                                className={styles["cart-plus-minus-box"]}
-                              />
-                              <button onClick={() => handleQuantityChange(i, Math.max(0, slide.total - 1),updateCartItem(slide.p_id , slide.total - 1 ))}
-                                type="button"
-                                className={styles["cart-minus"]}
-                                data-product-id="1"
-                              > 
-                                -
-                              </button>
-                            </div>
-                          </td>
-                          <td className={styles["cart-product-subtotal"]}>
-                            $200.00
-                          </td>
-                        </tr>
-                      ))} */}
                     </tbody>
                   </table>
                 </div>
@@ -294,68 +276,79 @@ const Cart = () => {
                 <h4>Cart Subtotal</h4>
                 <table className={styles["table"]}>
                   <tbody>
-                    {count > 0 ? (
-                      cartData.map((slide, i) => (
-                        // alert(typeof (slide.totalPrice));
-                        <>
-                          <tr>
-                            <td>Cart Subtotal</td>
-                            <td>${slide.totalPrice}</td>
+                    {count > 0 && (
+                      <>
+                        {cartData.map((item, index) => (
+                          <tr key={index}>
+                            <td>{item.productName}</td>
+                            <td>${item.totalPrice}</td>
                           </tr>
-                          <tr>
-                            <td>Shipping and Handling</td>
-                            <td>$15.00</td>
-                          </tr>
-                          <tr>
-                            <td>VAT</td>
-                            <td>$00.00</td>
-                          </tr>
-                          <tr>
-                            <td>
-                              <strong>Order Total</strong>
-                            </td>
-                            <td>
-                              <strong>${15 + +slide.totalPrice}</strong>
-                            </td>
-                          </tr>
-                        </>
-                      ))
-                    ) : (
-                      // )}
-                      <tr>
-                        <td colSpan="6" style={{ textAlign: "center" }}>
-                          Cart Is Empty
-                        </td>
-                      </tr>
+                        ))}
+                        <tr>
+                          <td>
+                            <strong>Cart Subtotal</strong>
+                          </td>
+                          <td>
+                            <strong>
+                              $
+                              {cartData
+                                .reduce(
+                                  (total, item) =>
+                                    total + parseFloat(item.totalPrice),
+                                  0
+                                )
+                                .toFixed(2)}
+                            </strong>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>Shipping and Handling</td>
+                          <td>$15.00</td>
+                        </tr>
+                        <tr>
+                          <td>VAT</td>
+                          <td>$00.00</td>
+                        </tr>
+                        <tr>
+                          <td>
+                            <strong>Order Total</strong>
+                          </td>
+                          <td>
+                            <strong>
+                              $
+                              {(
+                                parseFloat(
+                                  cartData.reduce(
+                                    (total, item) =>
+                                      total + parseFloat(item.totalPrice),
+                                    0
+                                  )
+                                ) + 15
+                              ).toFixed(2)}
+                            </strong>
+                          </td>
+                        </tr>
+                      </>
                     )}
                   </tbody>
                 </table>
 
                 <div className={styles["btn-wrapper"]}>
                   {count > 0 ? (
-                      <Link
-                      // href="/checkout/${}"/singleProduct/${slide.p_id}/${slide.productName}
+                    <Link
                       to={`/checkout/${cookie}`}
                       className={styles["theme-btn-1 btn btn-effect-1"]}
                     >
                       Proceed to checkout
                     </Link>
-                  ):(
+                  ) : (
                     <Link
-                    // href="/checkout/${}"/singleProduct/${slide.p_id}/${slide.productName}
-                    to={"/"}
-                    className={styles["theme-btn-1 btn btn-effect-1"]}
-                  >
-                    Proceed to checkout
-                  </Link>
+                      to={"/"}
+                      className={styles["theme-btn-1 btn btn-effect-1"]}
+                    >
+                      Proceed to checkout
+                    </Link>
                   )}
-                  {/* // <Link
-                  //   // href="/checkout/${}"/singleProduct/${slide.p_id}/${slide.productName}
-                  //   to={`/checkout/${cookie}`}
-                  //   className={styles["theme-btn-1 btn btn-effect-1"]}
-                  // >
-                  //   Proceed to checkout
-                  // </Link> */}
                 </div>
               </div>
             </div>
