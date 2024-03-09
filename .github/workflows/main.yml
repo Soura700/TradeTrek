@@ -17,16 +17,16 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: ./frontend
-          file: ./frontend/Dockerfile
+          file: ./frontend/dockerfile
           push: true
-          tags: your-dockerhub-username/frontend-image:latest
+          tags: soura700/frontend-image:latest
 
       - name: Build and push backend image
         uses: docker/build-push-action@v2
         with:
           context: ./backend
-          file: ./backend/Dockerfile
+          file: ./backend/dockerfile
           push: true
-          tags: your-dockerhub-username/backend-image:latest
+          tags: soura700/backend-image:latest
 
       # Add more steps as needed for additional services
