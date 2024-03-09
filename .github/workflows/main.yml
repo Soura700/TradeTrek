@@ -2,7 +2,7 @@ name: Build and Push Docker Images
 
 on:
   push:
-    branches: ['master']  # Trigger workflow on pushes to the main branch
+    branches: ['master'] # Trigger workflow on pushes to the main branch
 
 jobs:
   build:
@@ -16,7 +16,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: ./frontend
-          file: /frontend/dockerfile
+          file: ./frontend/dockerfile
           push: true
           tags: soura700/frontend-image:latest
 
@@ -24,7 +24,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: ./backend
-          file: /backend/dockerfile
+          file: ./backend/dockerfile
           push: true
           tags: soura700/backend-image:latest
 
