@@ -4,123 +4,6 @@ const bcrypt = require("bcrypt");
 const connection = require("../connection");
 const io = require("../socket")
 
-// router.post("/add-to-cart", (req, res) => {
-//   const user_id = req.body.user_id;
-//   const product_id = req.body.product_id;
-//   const cartItemCount = req.body.cartItemCount;
-//   const totalPrice = req.body.totalPrice;
-
-//   const newCart = {
-//     user_id: user_id,
-//     product_id: product_id,
-//     cartItemCount: cartItemCount,
-//     totalPrice: totalPrice,
-//   };
-
-//   try {
-//     connection.query(
-//       "SELECT * FROM CARTS WHERE user_id = ? AND product_id = ? ",
-//       [user_id, product_id],
-//       (err, result) => {
-//         if (err) {
-//           console.log(err);
-//           return res.status(500).json(err);
-//         }
-
-//         if (result.length > 0) {
-//           const existingCartItemCount = result[0].cartItemCount;
-//           const updatedCartItemCount = existingCartItemCount + cartItemCount;
-
-//           connection.query(
-//             "UPDATE carts SET cartItemCount = ? WHERE user_id = ? AND product_id = ?",
-//             [updatedCartItemCount, user_id, product_id],
-//             (updateErr, updateResult) => {
-//               if (updateErr) {
-//                 console.log(updateErr);
-//                 return res.status(500).json(updateErr);
-//               }
-//               res.status(200).json(updateResult);
-//             }
-//           );
-//         }
-//       }
-//     );
-
-//     connection.query("INSERT INTO carts SET ?", newCart, (err, result) => {
-//       if (err) {
-//         return res.status(500).json(err);
-//       } else {
-//         res.status(200).json(result);
-//       }
-//     });
-//   } catch (error) {
-//     console.log(error);
-//     res.status(500).json(error);
-//   }
-// });
-
-// Assuming you have properly established the MySQL connection
-// router.post("/add-to-cart", (req, res) => {
-//   const user_id = req.body.user_id;
-//   const product_id = req.body.product_id;
-//   const cartItemCount = req.body.cartItemCount;
-//   const totalPrice = req.body.totalPrice;
-
-//   const newCart = {
-//     user_id: user_id,
-//     product_id: product_id,
-//     cartItemCount: cartItemCount,
-//     totalPrice: totalPrice,
-//     is_active:1
-//   };
-
-//   try {
-//     connection.query(
-//       "SELECT * FROM carts WHERE user_id = ? AND product_id = ?",
-//       [user_id, product_id],
-//       (err, result) => {
-//         if (err) {
-//           console.log(err);
-//           return res.status(500).json(err);
-//         }
-
-//         if (result.length > 0) {
-//           const existingCartItemCount = result[0].cartItemCount;
-//           const difference = cartItemCount - existingCartItemCount; //
-//           // updatedCartItemCount
-//           const updatedCartItemCount = existingCartItemCount + cartItemCount;
-
-//           connection.query(
-//             "UPDATE carts SET cartItemCount = ? WHERE user_id = ? AND product_id = ?",
-//             [updatedCartItemCount, user_id, product_id],
-//             (updateErr, updateResult) => {
-//               if (updateErr) {
-//                 console.log(updateErr);
-//                 return res.status(500).json(updateErr);
-//               }
-//               res.status(200).json(updateResult);
-//             }
-//           );
-//         } else {
-//           connection.query(
-//             "INSERT INTO carts SET ?",
-//             newCart,
-//             (insertErr, insertResult) => {
-//               if (insertErr) {
-//                 console.log(insertErr);
-//                 return res.status(500).json(insertErr);
-//               }
-//               res.status(200).json(insertResult);
-//             }
-//           );
-//         }
-//       }
-//     );
-//   } catch (error) {
-//     console.log(error);
-//     res.status(500).json(error);
-//   }
-// });
 
 router.post("/add-to-cart", (req, res) => {
   const user_id = req.body.user_id;
@@ -329,6 +212,23 @@ router.put("/update_status/:user_id", (req, res) => {
     res.status(500).json(error);
   }
 });
+
+router.delete("/delete_cart/:user_id" , async (req,res)=>{
+  const user_id = req.params.user_id; 
+  try {
+    connection.query("DELETE carts WHERE user_id = ?" , [user_id] , (err , result)=>{
+      if(err){
+        console.log(err);
+        return res.status(500).json(err);
+      }else{
+        return  res.status(204).json({message:"Cart deleted successfullly"});
+      }
+    })
+  }catch(error){
+    console.log(error)
+    return res.status(500).json(error)
+  }
+})
 
 
 
