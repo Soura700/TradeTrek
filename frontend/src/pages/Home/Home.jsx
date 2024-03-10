@@ -9,6 +9,7 @@ import Slider from "../../components/Slider/Slider"
 import Testimonial from "../../components/Testimonials/Testimonials"
 
 import Products from "../../components/Products/Products"
+import Recommendation from '../../components/Recommendation/Recommendation'
 
 const Home = () => {
 
@@ -61,6 +62,7 @@ const Home = () => {
       <Hero value={cartData} />
       <Slider/>
       <Products/> 
+      <Recommendation/>
       <Testimonial/>
     </div>
   )

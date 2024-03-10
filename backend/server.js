@@ -96,12 +96,12 @@ app.get("/",(req,res)=>{
 //   }
 // });
 
-app.get('/api/recommendations', async (req, res) => {
+app.post('/api/recommendations', async (req, res) => {
   try {
       // Extract the user ID from the request parameters
       const user_id = req.body.user_id;
 
-      console.log(user_id);
+      console.log(typeof user_id);
 
       // Make a POST request to the Flask API to fetch recommendations
       const response = await axios.post('http://localhost:5000/recommendations', {

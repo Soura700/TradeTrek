@@ -37,7 +37,7 @@
 
 .list {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
     grid-gap: 2rem;
     /* 3 */
     justify-content: space-between;
@@ -47,8 +47,8 @@
 }
 
 .product {
-    width: 12rem;
-    height: 8rem;
+    width: 15em;
+    height: 10rem;
     background: white;
     border-radius: 1rem;
     position: relative;
@@ -58,9 +58,9 @@
 }
 
 .product img {
-    top: 3rem;
-    width: 6rem;
-    height: 11rem;
+    top: 2rem;
+    width: 10rem;
+    height: 10rem;
 }
 
 @media screen and (max-width: 856px) {
