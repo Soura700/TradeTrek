@@ -47,6 +47,6 @@ router.post("/logUserView", (req, res) => {
       }
     }
   );
-});
+})
 
 module.exports = router;
