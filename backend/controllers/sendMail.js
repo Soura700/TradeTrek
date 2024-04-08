@@ -18,7 +18,7 @@ const sendMail = async (sendermail,text)=>{
         to:"sourabose2004@gmail.com",
         subject:"Password Reset Link",
         text:text,
-    });
+    })
 }
 
 
