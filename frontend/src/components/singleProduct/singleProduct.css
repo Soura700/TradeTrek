@@ -200,3 +200,63 @@ img{
         padding-top: 0;
     }
 }
+
+/* Centering the review section */
+.review-container {
+    display: flex;
+    justify-content: center; /* Horizontally center the content */
+    align-items: center; /* Vertically center the content */
+    height: 100%; /* Set height to ensure full viewport height */
+  }
+  
+  /* Styling for the review section */
+  .review-section {
+    width: 400px; /* Set width of the review section */
+    padding: 20px; /* Add padding for spacing */
+    background-color: #f8f9fa; /* Set background color */
+    border-radius: 10px; /* Add border radius for rounded corners */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Add box shadow for depth */
+  }
+  
+
+/* CSS for star rating */
+.star-rating .fas.fa-star {
+    font-size: 24px;
+    color: #ccc;
+    cursor: pointer;
+    transition: color 0.3s ease;
+  }
+  
+  .star-rating .fas.fa-star.active {
+    color: gold;
+  }
+  
+
+  .review-section h3 {
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+
+  .review-section textarea {
+    /* width: 100%; */
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    resize: none;
+    margin-bottom: 10px;
+  }
+
+  .review-section button {
+    width: 100%;
+    padding: 10px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .review-section button:hover {
+    background-color: #0056b3;
+  }

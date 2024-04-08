@@ -19,6 +19,8 @@ const SingleProduct = () => {
   const [singleProduct, setSingleProduct] = useState([]);
   const [img, setImg] = useState(null);
   const [quantity, setQuantity] = useState(1);
+  const [rating, setRating] = useState(0);
+  const [review, setReview] = useState("");
 
   useEffect(() => {
     // Function to call API when component mounts
@@ -132,6 +134,28 @@ const SingleProduct = () => {
   };
 
   const notify = () => toast("Items are added to the cart"); //Toastify
+
+
+  const handleRating = (value) => {
+    // Toggle the color of the clicked star and stars to its right
+    if (value <= rating) {
+      // If the clicked star is already selected, deselect it and stars to its right
+      setRating(value - 1);
+    } else {
+      // If the clicked star is not selected, select it and stars to its right
+      setRating(value);
+    }
+  };
+  
+
+  const handleReviewChange = (event) => {
+    setReview(event.target.value);
+  };
+
+  const handleSubmitReview = () => {
+    // Submit review logic here
+  };
+
 
   return (
     <div class="card-wrapper">
@@ -356,6 +380,28 @@ const SingleProduct = () => {
           ))}
         </div>
       </div>
+       {/* Review section */}
+       <div className="review-section">
+          <h3>Give a Review</h3>
+          {/* Star rating */}
+          <div className="star-rating">
+            {[1, 2, 3, 4, 5].map((value) => (
+              <i
+                key={value}
+                className={`fas fa-star ${value <= rating ? "active" : ""}`}
+                onClick={() => handleRating(value)}
+              ></i>
+            ))}
+          </div>
+          {/* Review text area */}
+          <textarea
+            placeholder="Write your review here..."
+            value={review}
+            onChange={handleReviewChange}
+          ></textarea>
+          {/* Submit button */}
+          <button onClick={handleSubmitReview}>Submit Review</button>
+        </div>
     </div>
   );
 };
