@@ -21,6 +21,7 @@ const SingleProduct = () => {
   const [quantity, setQuantity] = useState(1);
   const [rating, setRating] = useState(0);
   const [review, setReview] = useState("");
+  const [averageRating, setAverageRating] = useState(0);
 
   useEffect(() => {
     // Function to call API when component mounts
@@ -45,7 +46,20 @@ const SingleProduct = () => {
       }
     }
 
+    async function averageRatingFunc() {
+      try {
+        const response = await axios.get(
+          "http://localhost:5000/api/rating/average_rating/" + id
+        );
+        const data = response.data;
+        setAverageRating(data.averageRating);
+      } catch (error) {
+        console.error("Error calling API:", error);
+      }
+    }
+
     callApi(); // Call the function when component mounts
+    averageRatingFunc();
   }, [isLoggedIn, checkAuthentication, id]);
 
   useEffect(() => {
@@ -79,7 +93,6 @@ const SingleProduct = () => {
 
   const handleImg = (imageUrl) => {
     //On clickng the img in the select image div the image will be set to the clickd image url in the img-showcase section
-
     setImg(imageUrl);
   };
 
@@ -135,7 +148,6 @@ const SingleProduct = () => {
 
   const notify = () => toast("Items are added to the cart"); //Toastify
 
-
   const handleRating = (value) => {
     // Toggle the color of the clicked star and stars to its right
     if (value <= rating) {
@@ -146,16 +158,41 @@ const SingleProduct = () => {
       setRating(value);
     }
   };
-  
 
   const handleReviewChange = (event) => {
     setReview(event.target.value);
   };
 
-  const handleSubmitReview = () => {
-    // Submit review logic here
-  };
+  const handleSubmitReview = async () => {
+    alert("Called");
+    try {
+      const response = await fetch(
+        "http://localhost:5000/api/auth/check-cookie",
+        {
+          method: "GET",
+          credentials: "include",
+        }
+      );
 
+      const data = await response.json();
+
+      const rating_response = await axios.post(
+        "http://localhost:5000/api/rating/set_ratings",
+        {
+          user_id: data,
+          product_id: id,
+          ratings: rating, // Assuming rating is the variable storing the user's rating
+        }
+      );
+
+      // Handle success response
+      console.log(rating_response); // Assuming the API returns a message
+    } catch (error) {
+      console.error("Error submitting review:", error);
+      // Handle error
+      console.log("Error" + error);
+    }
+  };
 
   return (
     <div class="card-wrapper">
@@ -164,26 +201,6 @@ const SingleProduct = () => {
           <div class="img-display">
             <div class="img-showcase">
               {img && <img src={img} alt="Selected shoe image" />}
-              {/* {singleProduct.map((slide, i) => (
-                <>
-                  <img
-                    src={`http://localhost:5000/${slide.images[0]}`}
-                    alt="shoe image"
-                  />
-                  <img
-                    src={`http://localhost:5000/${slide.images[1]}`}
-                    alt="shoe image"
-                  />
-                  <img
-                    src={`http://localhost:5000/${slide.images[2]}`}
-                    alt="shoe image"
-                  />
-                  <img
-                    src={`http://localhost:5000/${slide.images[2]}`}
-                    alt="shoe image"
-                  />
-                </>
-              ))} */}
             </div>
           </div>
           <div class="img-select">
@@ -259,14 +276,32 @@ const SingleProduct = () => {
               <a href="#" class="product-link">
                 visit nike store
               </a>
-              <div class="product-rating">
+              {/* <div class="product-rating">
                 <i class="fas fa-star"></i>
                 <i class="fas fa-star"></i>
                 <i class="fas fa-star"></i>
                 <i class="fas fa-star"></i>
                 <i class="fas fa-star-half-alt"></i>
                 <span>4.7(21)</span>
+              </div> */}
+              <div className="product-rating">
+                {[...Array(5)].map((_, index) => {
+                  if (index < Math.floor(averageRating)) {
+                    return <i key={index} className="fas fa-star"></i>; // Full star
+                  } else if (
+                    index === Math.floor(averageRating) &&
+                    averageRating % 1 >= 0.5
+                  ) {
+                    return <i key={index} className="fas fa-star-half-alt"></i>; // Half star
+                  } else {
+                    return <i key={index} className="far fa-star"></i>; // Empty star
+                  }
+                })}
+                <span>
+                  {averageRating.toFixed(1)} ({singleProduct.length})
+                </span>
               </div>
+
               <div class="product-price">
                 <p class="last-price">
                   Old Price: <span>${slide.price}</span>
@@ -380,28 +415,28 @@ const SingleProduct = () => {
           ))}
         </div>
       </div>
-       {/* Review section */}
-       <div className="review-section">
-          <h3>Give a Review</h3>
-          {/* Star rating */}
-          <div className="star-rating">
-            {[1, 2, 3, 4, 5].map((value) => (
-              <i
-                key={value}
-                className={`fas fa-star ${value <= rating ? "active" : ""}`}
-                onClick={() => handleRating(value)}
-              ></i>
-            ))}
-          </div>
-          {/* Review text area */}
-          <textarea
-            placeholder="Write your review here..."
-            value={review}
-            onChange={handleReviewChange}
-          ></textarea>
-          {/* Submit button */}
-          <button onClick={handleSubmitReview}>Submit Review</button>
+      {/* Review section */}
+      <div className="review-section">
+        <h3>Give a Review</h3>
+        {/* Star rating */}
+        <div className="star-rating">
+          {[1, 2, 3, 4, 5].map((value) => (
+            <i
+              key={value}
+              className={`fas fa-star ${value <= rating ? "active" : ""}`}
+              onClick={() => handleRating(value)}
+            ></i>
+          ))}
         </div>
+        {/* Review text area */}
+        <textarea
+          placeholder="Write your review here..."
+          value={review}
+          onChange={handleReviewChange}
+        ></textarea>
+        {/* Submit button */}
+        <button onClick={handleSubmitReview}>Submit Review</button>
+      </div>
     </div>
   );
 };

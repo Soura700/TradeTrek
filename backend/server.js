@@ -13,6 +13,7 @@ const server = require("http").Server(app)
 const cors = require("cors");
 const sendMail = require("./controllers/sendMail");
 const interactionRoute = require("./routes/interaction");
+const rating = require("./routes/rating");
 const axios = require( 'axios' );
 
 
@@ -138,6 +139,8 @@ app.use("/sendMail",sendMail);
 app.use("/api/interaction" ,interactionRoute);
 
 app.get("/sendMail",sendMail);
+
+app.use("/api/rating" , rating);
 
 
 
