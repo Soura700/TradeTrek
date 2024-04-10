@@ -210,7 +210,7 @@ router.post("/create-order", async (req, res) => {
 
 router.get("/get_order/:user_id", async (req, res) => {
   try {
-    const {user_id} = req.body;
+    const {user_id} = req.params;
     // Perform SQL query to retrieve users
     const sqlQuery = `
     SELECT *
