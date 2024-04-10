@@ -14,6 +14,7 @@ const cors = require("cors");
 const sendMail = require("./controllers/sendMail");
 const interactionRoute = require("./routes/interaction");
 const rating = require("./routes/rating");
+const reviewRoute = require("./routes/review");
 const axios = require( 'axios' );
 
 
@@ -98,6 +99,7 @@ app.get("/",(req,res)=>{
 // });
 
 app.post('/api/recommendations', async (req, res) => {
+  console.log("Callled");
   try {
       // Extract the user ID from the request parameters
       const user_id = req.body.user_id;
@@ -105,7 +107,7 @@ app.post('/api/recommendations', async (req, res) => {
       console.log(typeof user_id);
 
       // Make a POST request to the Flask API to fetch recommendations
-      const response = await axios.post('http://localhost:5000/recommendations', {
+      const response = await axios.post('http://127.0.0.1:5000/recommendations', {
           user_id: user_id
       });
 
@@ -141,6 +143,8 @@ app.use("/api/interaction" ,interactionRoute);
 app.get("/sendMail",sendMail);
 
 app.use("/api/rating" , rating);
+
+app.use("/api/review" , reviewRoute);
 
 
 

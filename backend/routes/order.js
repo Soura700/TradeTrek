@@ -203,4 +203,39 @@ router.post("/create-order", async (req, res) => {
   }
 });
 
+
+
+
+// Get data by the user_id
+
+router.get("/get_order/:user_id", async (req, res) => {
+  try {
+    const {user_id} = req.body;
+    // Perform SQL query to retrieve users
+    const sqlQuery = `
+    SELECT *
+    FROM order_items
+    JOIN orders ON order_items.order_item_id = orders.order_id
+    JOIN products ON order_items.product_id = products.p_id
+    WHERE orders.user_id = ?`;
+
+    connection.query(sqlQuery, [user_id], async (sqlError, sqlResults) => {
+      if (sqlError) {
+        console.error("SQL Error:", sqlError);
+        res
+          .status(500)
+          .json({ error: "An error occurred while fetching users" });
+        return;
+      }else{
+        res.status(200).json(sqlResults)
+      }
+    });
+  } catch (error) {
+    console.error("Error creating order:", error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while creating the order" });
+  }
+});
+
 module.exports = router;

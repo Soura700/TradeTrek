@@ -2,8 +2,10 @@ from flask import Flask, request, jsonify
 import numpy as np
 import mysql.connector
 from scipy.sparse.linalg import svds
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 # Function to fetch interaction data from MySQL database
 def fetch_interaction_data():
@@ -105,7 +107,9 @@ def generate_recommendations(user_id, user_item_matrix, similarity_matrix, num_r
 # Function to generate content-based recommendations
 def generate_content_based_recommendations(user_id, interaction_data, num_recommendations=5):
     # Fetch product categories for products with count_view > 3
-    relevant_product_ids = [row[1] for row in interaction_data if row[0] == user_id and row[2] > 3]
+    # relevant_product_ids = [row[1] for row in interaction_data if row[0] == user_id and row[2] > 3]
+    relevant_product_ids = [row[1] for row in interaction_data if row[0] == user_id and row[2] is not None and row[2] > 3]
+
 
     print("relevant_product_ids")
     print(relevant_product_ids)

@@ -10,6 +10,7 @@ import "./singleProduct.css";
 
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Review from "../Reviews/Reviews";
 
 const SingleProduct = () => {
   const { isLoggedIn, checkAuthentication } = useAuth();
@@ -195,6 +196,7 @@ const SingleProduct = () => {
   };
 
   return (
+    <>
     <div class="card-wrapper">
       <div class="card_single">
         <div class="product-imgs">
@@ -307,7 +309,7 @@ const SingleProduct = () => {
                   Old Price: <span>${slide.price}</span>
                 </p>
                 <p class="new-price">
-                  New Price: <span>$249.00 (5%)</span>
+                  New Price: <span>${slide.price} (5%)</span>
                 </p>
               </div>
               <div class="product-detail">
@@ -438,6 +440,8 @@ const SingleProduct = () => {
         <button onClick={handleSubmitReview}>Submit Review</button>
       </div>
     </div>
+    <Review/>
+    </>
   );
 };
 

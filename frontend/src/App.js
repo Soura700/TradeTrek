@@ -16,6 +16,8 @@ import Checkout from './components/Checkout/Checkout';
 import {CartProvider} from "./context/cartContext";
 import Reset from './components/Reset/Reset';
 import Forgot from './components/Forgot/Forgot';
+import SingleOrder from "./components/SingleOrder/SingleOrder.jsx";
+import Admin from './pages/Admin/Admin.jsx';
 
 
 
@@ -107,6 +109,14 @@ function App() {
           path: "/checkout/:userId",
           element: <Checkout />,
         },
+        {
+          path:"/singleOrder",
+          element:<SingleOrder/>
+        },
+        {
+          path: "/admin",
+          element: <Admin />,
+        },
       ],
     },
 
@@ -126,6 +136,8 @@ function App() {
       path: "/reset-password/:id/:token",
       element: <Reset />,
     },
+
+    
   ]);
 
   return (
