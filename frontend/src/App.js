@@ -110,7 +110,7 @@ function App() {
           element: <Checkout />,
         },
         {
-          path:"/singleOrder",
+          path:"/singleOrder/:id/:order_id",
           element:<SingleOrder/>
         },
         {

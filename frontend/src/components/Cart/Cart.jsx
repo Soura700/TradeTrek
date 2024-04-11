@@ -21,11 +21,6 @@ const Cart = () => {
     (slide) => slide.is_active === 1 && (count = count + 1)
   );
 
-  console.log("Count" + count);
-  console.log(activeProducts);
-
-  console.log(cartData);
-
   const handleQuantityChange = (index, newQuantity) => {
     const updatedCartData = [...cartData];
     updatedCartData[index].total = newQuantity;
@@ -37,7 +32,6 @@ const Cart = () => {
     checkAuthentication(); // Call this when the component mounts
   }, []);
 
-  console.log("Is Logged IN" + isLoggedIn);
 
   useEffect(() => {
     const newSocket = io("http://localhost:8000");

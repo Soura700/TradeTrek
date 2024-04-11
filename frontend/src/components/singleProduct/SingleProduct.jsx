@@ -24,9 +24,11 @@ const SingleProduct = () => {
   const [review, setReview] = useState("");
   const [averageRating, setAverageRating] = useState(0);
 
+
   useEffect(() => {
     // Function to call API when component mounts
     async function callApi() {
+      await checkAuthentication();
       try {
         const cookie = await fetch(
           "http://localhost:5000/api/auth/check-cookie",
@@ -62,6 +64,7 @@ const SingleProduct = () => {
     callApi(); // Call the function when component mounts
     averageRatingFunc();
   }, [isLoggedIn, checkAuthentication, id]);
+
 
   useEffect(() => {
     async function fetchSliderProducts() {
@@ -197,88 +200,88 @@ const SingleProduct = () => {
 
   return (
     <>
-    <div class="card-wrapper">
-      <div class="card_single">
-        <div class="product-imgs">
-          <div class="img-display">
-            <div class="img-showcase">
-              {img && <img src={img} alt="Selected shoe image" />}
+      <div class="card-wrapper">
+        <div class="card_single">
+          <div class="product-imgs">
+            <div class="img-display">
+              <div class="img-showcase">
+                {img && <img src={img} alt="Selected shoe image" />}
+              </div>
+            </div>
+            <div class="img-select">
+              {singleProduct.map((slide, i) => (
+                <>
+                  <div class="img-item">
+                    <a
+                      href="#"
+                      className-id={i + 1}
+                      onClick={() =>
+                        handleImg(`http://localhost:5000/${slide.images[0]}`)
+                      }
+                    >
+                      <img
+                        src={`http://localhost:5000/${slide.images[0]}`}
+                        alt="shoe image"
+                      />
+                    </a>
+                  </div>
+                  <div class="img-item">
+                    <a
+                      href="#"
+                      className-id={i + 1}
+                      onClick={() =>
+                        handleImg(`http://localhost:5000/${slide.images[1]}`)
+                      }
+                    >
+                      <img
+                        src={`http://localhost:5000/${slide.images[1]}`}
+                        alt="shoe image"
+                      />
+                    </a>
+                  </div>
+                  <div class="img-item">
+                    <a
+                      href="#"
+                      className-id={i + 1}
+                      onClick={() =>
+                        handleImg(`http://localhost:5000/${slide.images[2]}`)
+                      }
+                    >
+                      <img
+                        src={`http://localhost:5000/${slide.images[2]}`}
+                        // src="https://fadzrinmadu.github.io/hosted-assets/product-detail-page-design-with-image-slider-html-css-and-javascript/shoe_3.jpg"
+                        alt="shoe image"
+                      />
+                    </a>
+                  </div>
+                  <div class="img-item">
+                    <a
+                      href="#"
+                      className-id={i + 1}
+                      onClick={() =>
+                        handleImg(`http://localhost:5000/${slide.images[2]}`)
+                      }
+                    >
+                      <img
+                        src={`http://localhost:5000/${slide.images[2]}`}
+                        // src="https://fadzrinmadu.github.io/hosted-assets/product-detail-page-design-with-image-slider-html-css-and-javascript/shoe_4.jpg"
+                        alt="shoe image"
+                      />
+                    </a>
+                  </div>
+                </>
+              ))}
             </div>
           </div>
-          <div class="img-select">
+
+          <div class="product-content">
             {singleProduct.map((slide, i) => (
               <>
-                <div class="img-item">
-                  <a
-                    href="#"
-                    className-id={i + 1}
-                    onClick={() =>
-                      handleImg(`http://localhost:5000/${slide.images[0]}`)
-                    }
-                  >
-                    <img
-                      src={`http://localhost:5000/${slide.images[0]}`}
-                      alt="shoe image"
-                    />
-                  </a>
-                </div>
-                <div class="img-item">
-                  <a
-                    href="#"
-                    className-id={i + 1}
-                    onClick={() =>
-                      handleImg(`http://localhost:5000/${slide.images[1]}`)
-                    }
-                  >
-                    <img
-                      src={`http://localhost:5000/${slide.images[1]}`}
-                      alt="shoe image"
-                    />
-                  </a>
-                </div>
-                <div class="img-item">
-                  <a
-                    href="#"
-                    className-id={i + 1}
-                    onClick={() =>
-                      handleImg(`http://localhost:5000/${slide.images[2]}`)
-                    }
-                  >
-                    <img
-                      src={`http://localhost:5000/${slide.images[2]}`}
-                      // src="https://fadzrinmadu.github.io/hosted-assets/product-detail-page-design-with-image-slider-html-css-and-javascript/shoe_3.jpg"
-                      alt="shoe image"
-                    />
-                  </a>
-                </div>
-                <div class="img-item">
-                  <a
-                    href="#"
-                    className-id={i + 1}
-                    onClick={() =>
-                      handleImg(`http://localhost:5000/${slide.images[2]}`)
-                    }
-                  >
-                    <img
-                      src={`http://localhost:5000/${slide.images[2]}`}
-                      // src="https://fadzrinmadu.github.io/hosted-assets/product-detail-page-design-with-image-slider-html-css-and-javascript/shoe_4.jpg"
-                      alt="shoe image"
-                    />
-                  </a>
-                </div>
-              </>
-            ))}
-          </div>
-        </div>
-
-        <div class="product-content">
-          {singleProduct.map((slide, i) => (
-            <>
-              <h2 class="product-title">{slide.productName}</h2>
-              <a href="#" class="product-link">
-                visit nike store
-              </a>
-              {/* <div class="product-rating">
+                <h2 class="product-title">{slide.productName}</h2>
+                <a href="#" class="product-link">
+                  visit nike store
+                </a>
+                {/* <div class="product-rating">
                 <i class="fas fa-star"></i>
                 <i class="fas fa-star"></i>
                 <i class="fas fa-star"></i>
@@ -286,69 +289,85 @@ const SingleProduct = () => {
                 <i class="fas fa-star-half-alt"></i>
                 <span>4.7(21)</span>
               </div> */}
-              <div className="product-rating">
-                {[...Array(5)].map((_, index) => {
-                  if (index < Math.floor(averageRating)) {
-                    return <i key={index} className="fas fa-star"></i>; // Full star
-                  } else if (
-                    index === Math.floor(averageRating) &&
-                    averageRating % 1 >= 0.5
-                  ) {
-                    return <i key={index} className="fas fa-star-half-alt"></i>; // Half star
-                  } else {
-                    return <i key={index} className="far fa-star"></i>; // Empty star
-                  }
-                })}
-                <span>
-                  {averageRating.toFixed(1)} ({singleProduct.length})
-                </span>
-              </div>
 
-              <div class="product-price">
-                <p class="last-price">
-                  Old Price: <span>${slide.price}</span>
-                </p>
-                <p class="new-price">
-                  New Price: <span>${slide.price} (5%)</span>
-                </p>
-              </div>
-              <div class="product-detail">
-                <h2 className="product-detail">about this item: </h2>
-                <p>{slide.product_description}</p>
-                {/* <p>
+                <div className="product-rating">
+                  {averageRating === null ? (
+                    <>
+                      <i className="far fa-star"></i>
+                      <i className="far fa-star"></i>
+                      <i className="far fa-star"></i>
+                      <i className="far fa-star"></i>
+                      <i className="far fa-star"></i>
+                      <span>No ratings yet</span>
+                    </>
+                  ) : (
+                    <>
+                      {[...Array(5)].map((_, index) => {
+                        if (index < Math.floor(averageRating)) {
+                          return <i key={index} className="fas fa-star"></i>; // Full star
+                        } else if (
+                          index === Math.floor(averageRating) &&
+                          averageRating % 1 >= 0.5
+                        ) {
+                          return (
+                            <i key={index} className="fas fa-star-half-alt"></i>
+                          ); // Half star
+                        } else {
+                          return <i key={index} className="far fa-star"></i>; // Empty star
+                        }
+                      })}
+                      <span>
+                        {averageRating.toFixed(1)} ({singleProduct.length})
+                      </span>
+                    </>
+                  )}
+                </div>
+
+                <div class="product-price">
+                  <p class="last-price">
+                    Old Price: <span>${slide.price}</span>
+                  </p>
+                  <p class="new-price">
+                    New Price: <span>${slide.price} (5%)</span>
+                  </p>
+                </div>
+                <div class="product-detail">
+                  <h2 className="product-detail">about this item: </h2>
+                  <p>{slide.product_description}</p>
+                  {/* <p>
                 Lorem ipsum dolor sit amet consectetur adipisicing elit.
                 Consequatur, perferendis eius. Dignissimos, labore suscipit. Unde.
               </p> */}
-                <ul>
-                  <li>
-                    Color: <span>Black</span>
-                  </li>
-                  <li>
-                    Available:{" "}
-                    <span>
-                      {" "}
-                      {slide.countInStock ? "In Stock" : "Out Of Stock"}{" "}
-                    </span>
-                  </li>
-                  <li>
-                    Category: <span>Shoes</span>
-                  </li>
-                  <li>
-                    Shipping Area: <span>All over the world</span>
-                  </li>
-                  <li>
-                    Shipping Fee: <span>Free</span>
-                  </li>
-                </ul>
-              </div>
-              <div class="purchase-info">
-                <input
-                  type="number"
-                  min="1"
-                  value={quantity}
-                  onClick={handleCount}
-                />
-                {/* {slide.countInStock ? (
+                  <ul>
+                    <li>
+                      Color: <span>Black</span>
+                    </li>
+                    <li>
+                      Available:{" "}
+                      <span>
+                        {" "}
+                        {slide.countInStock ? "In Stock" : "Out Of Stock"}{" "}
+                      </span>
+                    </li>
+                    <li>
+                      Category: <span>Shoes</span>
+                    </li>
+                    <li>
+                      Shipping Area: <span>All over the world</span>
+                    </li>
+                    <li>
+                      Shipping Fee: <span>Free</span>
+                    </li>
+                  </ul>
+                </div>
+                <div class="purchase-info">
+                  <input
+                    type="number"
+                    min="1"
+                    value={quantity}
+                    onClick={handleCount}
+                  />
+                  {/* {slide.countInStock ? (
                   // <button type="button" class="btn" onClick={{handleCart,notify}} >Add To Cart 
                   <button type="button" className="btn_single" onClick={()=>{ handleCart() ;  notify() ;} }>Add To Cart 
 
@@ -370,77 +389,77 @@ const SingleProduct = () => {
                   " "
                 )} */}
 
-                {slide.countInStock > 0 && (
-                  <button
-                    type="button"
-                    className="btn_single"
-                    onClick={() => {
-                      if (isLoggedIn) {
-                        handleCart();
-                        notify();
-                      } else {
-                        // Redirect to login page
-                        window.location.href = "/login";
-                      }
-                    }}
-                  >
-                    <i className="fas fa-shopping-cart"></i>
-                    Add To Cart
-                    <ToastContainer />
-                    {/* <i className="fas fa-shopping-cart"></i> */}
-                  </button>
-                )}
+                  {slide.countInStock > 0 && (
+                    <button
+                      type="button"
+                      className="btn_single"
+                      onClick={() => {
+                        if (isLoggedIn) {
+                          handleCart();
+                          notify();
+                        } else {
+                          // Redirect to login page
+                          window.location.href = "/login";
+                        }
+                      }}
+                    >
+                      <i className="fas fa-shopping-cart"></i>
+                      Add To Cart
+                      <ToastContainer />
+                      {/* <i className="fas fa-shopping-cart"></i> */}
+                    </button>
+                  )}
 
-                <button type="button" class="btn_single">
-                  Compare
-                </button>
-              </div>
-              <div class="social-links">
-                <p>Share At: </p>
-                <a href="#">
-                  <i class="fab fa-facebook-f"></i>
-                </a>
-                <a href="#">
-                  <i class="fab fa-twitter"></i>
-                </a>
-                <a href="#">
-                  <i class="fab fa-instagram"></i>
-                </a>
-                <a href="#">
-                  <i class="fab fa-whatsapp"></i>
-                </a>
-                <a href="#">
-                  <i class="fab fa-pinterest"></i>
-                </a>
-              </div>
-            </>
-          ))}
+                  <button type="button" class="btn_single">
+                    Compare
+                  </button>
+                </div>
+                <div class="social-links">
+                  <p>Share At: </p>
+                  <a href="#">
+                    <i class="fab fa-facebook-f"></i>
+                  </a>
+                  <a href="#">
+                    <i class="fab fa-twitter"></i>
+                  </a>
+                  <a href="#">
+                    <i class="fab fa-instagram"></i>
+                  </a>
+                  <a href="#">
+                    <i class="fab fa-whatsapp"></i>
+                  </a>
+                  <a href="#">
+                    <i class="fab fa-pinterest"></i>
+                  </a>
+                </div>
+              </>
+            ))}
+          </div>
+        </div>
+        {/* Review section */}
+        <div className="review-section">
+          <h3>Give a Review</h3>
+          {/* Star rating */}
+          <div className="star-rating">
+            {[1, 2, 3, 4, 5].map((value) => (
+              <i
+                key={value}
+                className={`fas fa-star ${value <= rating ? "active" : ""}`}
+                onClick={() => handleRating(value)}
+              ></i>
+            ))}
+          </div>
+          {/* Review text area */}
+          <textarea
+            placeholder="Write your review here..."
+            value={review}
+            onChange={handleReviewChange}
+          ></textarea>
+          {/* Submit button */}
+          <button onClick={handleSubmitReview}>Submit Review</button>
         </div>
       </div>
-      {/* Review section */}
-      <div className="review-section">
-        <h3>Give a Review</h3>
-        {/* Star rating */}
-        <div className="star-rating">
-          {[1, 2, 3, 4, 5].map((value) => (
-            <i
-              key={value}
-              className={`fas fa-star ${value <= rating ? "active" : ""}`}
-              onClick={() => handleRating(value)}
-            ></i>
-          ))}
-        </div>
-        {/* Review text area */}
-        <textarea
-          placeholder="Write your review here..."
-          value={review}
-          onChange={handleReviewChange}
-        ></textarea>
-        {/* Submit button */}
-        <button onClick={handleSubmitReview}>Submit Review</button>
-      </div>
-    </div>
-    <Review/>
+      <Review />
     </>
   );
 };

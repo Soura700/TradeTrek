@@ -22,8 +22,6 @@ const Header = ({ value }) => {
 
   const [socket, setSocket] = useState(null); //For setting the socket connection
 
-
-
   const toggleMenu = () => {
     setShowMenu((ShowMenu) => !ShowMenu);
   };
@@ -70,42 +68,44 @@ const Header = ({ value }) => {
     setActiveProducts(activeCartProduct);
   }, []);
 
-
-
   useEffect(() => {
     if (socket) {
-      socket.on("create_cart", async ({ product_id, cartItemCount, user_id }) => {
-        // Fetch the product details based on product_id
-        const existingProductIndex = activeProducts.findIndex(
-          (product) => product.p_id === product_id
-        );
-        if (existingProductIndex !== -1) {
-          const updatedActiveProducts = [...activeProducts];
-          updatedActiveProducts[existingProductIndex].total += cartItemCount;
-          setActiveProducts(updatedActiveProducts);
-        }
-        else{
-          try {
-            const response = await fetch(`http://localhost:5000/api/product/singleProduct/${product_id}`);
-            const productDetails = await response.json();
+      socket.on(
+        "create_cart",
+        async ({ product_id, cartItemCount, user_id }) => {
+          // Fetch the product details based on product_id
+          const existingProductIndex = activeProducts.findIndex(
+            (product) => product.p_id === product_id
+          );
+          if (existingProductIndex !== -1) {
+            const updatedActiveProducts = [...activeProducts];
+            updatedActiveProducts[existingProductIndex].total += cartItemCount;
+            setActiveProducts(updatedActiveProducts);
+          } else {
+            try {
+              const response = await fetch(
+                `http://localhost:5000/api/product/singleProduct/${product_id}`
+              );
+              const productDetails = await response.json();
 
-            const imagesArray = JSON.parse(productDetails[0].images);
+              const imagesArray = JSON.parse(productDetails[0].images);
 
-            const newProduct = {
-              p_id: product_id,
-              productName: productDetails[0].name,
-              totalPrice: productDetails[0].price,
-              images:imagesArray,
-              total: cartItemCount
-            };
-  
-            // Update the state to include the new product
-            setActiveProducts([...activeProducts, newProduct]);
-          } catch (error) {
-            console.error("Error fetching product details:", error);
+              const newProduct = {
+                p_id: product_id,
+                productName: productDetails[0].name,
+                totalPrice: productDetails[0].price,
+                images: imagesArray,
+                total: cartItemCount,
+              };
+
+              // Update the state to include the new product
+              setActiveProducts([...activeProducts, newProduct]);
+            } catch (error) {
+              console.error("Error fetching product details:", error);
+            }
           }
         }
-      });
+      );
     }
     return () => {
       if (socket) {
@@ -113,8 +113,6 @@ const Header = ({ value }) => {
       }
     };
   }, [socket]);
-
-
 
   const handleInputChange = (event) => {
     setSearchTerm(event.target.value);
@@ -212,10 +210,13 @@ const Header = ({ value }) => {
           style={{ display: ShowMenu ? "inherit" : "none" }}
         >
           <li>Collections</li>
-          <li>Brands</li>
+          {/* <li>Brands</li> */}
           <li>New</li>
           <li>Sales</li>
           <li>ENG</li>
+          <Link to={`/singleOrder/${cookie}/`}>
+            <li>Track</li>
+          </Link>
         </ul>
 
         <div className={css.searchContainer}>
@@ -295,7 +296,6 @@ const Header = ({ value }) => {
               <h5 style={{ textAlign: "center" }}>Cart Is Empty</h5>
             )}
           </div>
-
 
           {count > 0 ? (
             <div className={css.miniCartFooter}>
