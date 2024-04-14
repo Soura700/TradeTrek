@@ -8,6 +8,7 @@ import { io } from "socket.io-client";
 
 const Header = ({ value }) => {
   var count = 0;
+  // var totalPrice = 0;
 
   const activeCartProduct = value.filter(
     (slide) => slide.is_active === 1 && (count = count + 1)
@@ -19,6 +20,7 @@ const Header = ({ value }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [activeProducts, setActiveProducts] = useState([]);
+  var [totalPrice, setTotalPrice] = useState(0);
 
   const [socket, setSocket] = useState(null); //For setting the socket connection
 
@@ -49,16 +51,7 @@ const Header = ({ value }) => {
           }
         );
         const cookieData = await cookie.json();
-
         setCookie(cookieData);
-
-        // const newData = data.map(product => {
-        //   const imagesArray = JSON.parse(product.images);
-        //   return {
-        //     ...product,
-        //     images: imagesArray
-        //   };
-        // });
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -72,12 +65,59 @@ const Header = ({ value }) => {
     if (socket) {
       socket.on(
         "create_cart",
-        async ({ product_id, cartItemCount, user_id }) => {
+        async ({ product_id, cartItemCount, user_id, total_Price }) => {
+          alert("called create cart")
+          alert(total_Price)
           // Fetch the product details based on product_id
           const existingProductIndex = activeProducts.findIndex(
             (product) => product.p_id === product_id
           );
           if (existingProductIndex !== -1) {
+            const updatedActiveProducts = [...activeProducts];
+            updatedActiveProducts[existingProductIndex].total += cartItemCount;
+            updatedActiveProducts[existingProductIndex].totalPrice =
+              (updatedActiveProducts[existingProductIndex].totalPrice *
+                updatedActiveProducts[existingProductIndex].total +
+                total_Price * cartItemCount) /
+              updatedActiveProducts[existingProductIndex].total;
+            setActiveProducts(updatedActiveProducts);
+          } else {
+            try {
+              const response = await fetch(
+                `http://localhost:5000/api/product/singleProduct/${product_id}`
+              );
+              const productDetails = await response.json();
+              const imagesArray = JSON.parse(productDetails[0].images);
+              const newProduct = {
+                p_id: product_id,
+                productName: productDetails[0].productName,
+                price: productDetails[0].price,
+                images: imagesArray,
+                total: cartItemCount,
+                totalPrice: productDetails[0].price * cartItemCount,
+              };
+              console.log("New Product");
+              console.log(newProduct);
+              // Update the state to include the new product
+              setActiveProducts([newProduct, ...activeProducts]);
+            } catch (error) {
+              console.error("Error fetching product details:", error);
+            }
+          }
+        }
+      );
+
+      socket.on(
+        "update_cart",
+        async ({ product_id, cartItemCount, user_id, total_Price }) => {
+          alert("called update cart")
+          alert(total_Price)
+          // Fetch the product details based on product_id
+          const existingProductIndex = activeProducts.findIndex(
+            (product) => product.p_id === product_id
+          );
+          if (existingProductIndex !== -1) {
+            // let newTotalPrice = 0;
             const updatedActiveProducts = [...activeProducts];
             updatedActiveProducts[existingProductIndex].total += cartItemCount;
             setActiveProducts(updatedActiveProducts);
@@ -92,14 +132,17 @@ const Header = ({ value }) => {
 
               const newProduct = {
                 p_id: product_id,
-                productName: productDetails[0].name,
-                totalPrice: productDetails[0].price,
+                productName: productDetails[0].productName,
+                // totalPrice: productDetails[0].price,
+                price: productDetails[0].price,
                 images: imagesArray,
                 total: cartItemCount,
+                totalPrice: productDetails[0].price * cartItemCount,
               };
-
+              console.log("New Product");
+              console.log(newProduct);
               // Update the state to include the new product
-              setActiveProducts([...activeProducts, newProduct]);
+              setActiveProducts([newProduct, ...activeProducts]);
             } catch (error) {
               console.error("Error fetching product details:", error);
             }
@@ -107,12 +150,23 @@ const Header = ({ value }) => {
         }
       );
     }
+
     return () => {
       if (socket) {
         socket.off("create_cart");
+        socket.off("update_cart");
       }
     };
-  }, [socket]);
+  }, [socket, activeProducts]);
+
+  useEffect(() => {
+    // Calculate the total price whenever activeProducts changes
+    let totalPrice = 0;
+    activeProducts.forEach((product) => {
+      totalPrice += parseFloat(product.price *  product.total);
+    });
+    setTotalPrice(totalPrice);
+  }, [activeProducts]);
 
   const handleInputChange = (event) => {
     setSearchTerm(event.target.value);
@@ -133,24 +187,12 @@ const Header = ({ value }) => {
           images: imagesArray,
         };
       });
-
-      // const imagesArray = JSON.parse(productDetails.images); // Parsing images to array
-      // const processedProductDetails = {
-      //   ...productDetails,
-      //   images: imagesArray
-      // };
       return newData;
     } catch (error) {
       console.log(error);
       throw new Error("Error fetching product details");
     }
   };
-
-  // const handleKeyPress = (event) => {
-  //   if (event.key === 'Enter') {
-  //     handleSearch();
-  //   }
-  // };
 
   const handleKeyPress = async (event) => {
     if (event.key === "Enter") {
@@ -181,7 +223,7 @@ const Header = ({ value }) => {
   };
 
   var totalCartItem = 0;
-  var totalPrice = 0;
+  // var totalPrice = 0;
 
   // Calculating the total cart item
   for (var i = 0; i < value.length; i++) {
@@ -189,10 +231,10 @@ const Header = ({ value }) => {
   }
 
   // Calculating the total
-  for (var i = 0; i < value.length; i++) {
-    console.log(typeof value[i].totalPrice);
-    totalPrice = totalPrice + +value[i].totalPrice;
-  }
+  // for (var i = 0; i < value.length; i++) {
+  //   console.log(typeof value[i].totalPrice);
+  //   totalPrice = totalPrice + +value[i].totalPrice;
+  // }
 
   return (
     <div className={css.container}>
@@ -245,19 +287,6 @@ const Header = ({ value }) => {
 
         <CgShoppingBag className={css.cart} onClick={toggleSidebar} />
       </div>
-
-      {/* <div className={`${css.sidebar} ${sidebarOpen ? css.sidebarOpen : ""}`}>
-        <button className={css.closeButton} onClick={toggleSidebar}>
-          <span>&times;</span>{" "}
-        </button>
-      </div> */}
-
-      {/* <div className={`${css.sidebar} ${sidebarOpen ? css.sidebarOpen : ""}`}>
-        <button className={css.closeButton} onClick={toggleSidebar}>
-          <span>&times;</span>
-        </button>
-      </div> */}
-
       <div className={`${css.sidebar} ${sidebarOpen ? css.sidebarOpen : ""}`}>
         <div className={css.miniCart}>
           <div className={css.miniCartHead}>
@@ -268,14 +297,16 @@ const Header = ({ value }) => {
           </div>
 
           <div className={`${css.miniCartProductArea} ${css.ltn__scrollbar}`}>
-            {/* {value.map((slide, i) => ( */}
-            {count > 0 ? (
+            {activeProducts.length > 0 ? (
               activeProducts.map((slide, index) => {
                 return (
                   <div className={`${css.miniCartItem} clearfix`}>
                     <div className={css.miniCartImg}>
                       <a href="#">
-                        <img src={slide.images[0]} alt="Image" />
+                        <img
+                          src={`http://localhost:5000/${slide.images[0]}`}
+                          alt="Image"
+                        />
                       </a>
                       <span className={css.miniCartItemDelete}>
                         <i className={css.iconCancel}></i>
@@ -286,7 +317,7 @@ const Header = ({ value }) => {
                         <a href="#">{slide.productName}</a>
                       </h6>
                       <span className={css.miniCartQuantity}>
-                        {slide.total} x ${slide.totalPrice}
+                        {slide.total} x ${slide.price}
                       </span>
                     </div>
                   </div>
@@ -297,7 +328,7 @@ const Header = ({ value }) => {
             )}
           </div>
 
-          {count > 0 ? (
+          {activeProducts.length > 0 ? (
             <div className={css.miniCartFooter}>
               <div className={css.miniCartSubTotal}>
                 <h5>
@@ -323,8 +354,6 @@ const Header = ({ value }) => {
           ) : (
             ""
           )}
-
-          {/*  */}
         </div>
       </div>
     </div>

@@ -5,23 +5,187 @@ const connection = require("../connection");
 const io = require("../socket")
 
 
+// router.post("/add-to-cart", (req, res) => {
+//   const user_id = req.body.user_id;
+//   const product_id = req.body.product_id;
+//   const cartItemCount = req.body.cartItemCount;
+//   const totalPrice = req.body.totalPrice;
+
+//   const newCart = {
+//     user_id: user_id,
+//     product_id: product_id,
+//     cartItemCount: cartItemCount,
+//     totalPrice: totalPrice,
+//     is_active: 1 // Set the new cart to active
+//   };
+
+//   try {
+//     connection.query(
+//       "SELECT * FROM carts WHERE user_id = ? AND product_id = ?",
+//       [user_id, product_id],
+//       (err, result) => {
+//         if (err) {
+//           console.log(err);
+//           return res.status(500).json(err);
+//         }
+
+//         if (result.length > 0) {
+//           const existingCart = result[0];
+//           const existingCartItemCount = existingCart.cartItemCount;
+
+//           if (existingCart.is_active === 0) {
+//             // Create a new cart since the existing one is inactive
+//             connection.query(
+//               "INSERT INTO carts SET ?",
+//               newCart,
+//               (insertErr, insertResult) => {
+//                 if (insertErr) {
+//                   console.log(insertErr);
+//                   return res.status(500).json(insertErr);
+//                 }
+//                 res.status(200).json(insertResult);
+//               }
+//             );
+//           } else {
+//             // Update the existing cart
+//             const updatedCartItemCount = existingCartItemCount + cartItemCount;
+//             connection.query(
+//               "UPDATE carts SET cartItemCount = ? WHERE user_id = ? AND product_id = ?",
+//               [updatedCartItemCount, user_id, product_id],
+//               (updateErr, updateResult) => {
+//                 if (updateErr) {
+//                   console.log(updateErr);
+//                   return res.status(500).json(updateErr);
+//                 }              
+//                 io.emit('create_cart' , {product_id:product_id , cartItemCount:cartItemCount , user_id : user_id})
+//                 res.status(200).json(updateResult);
+//               }
+//             );
+//           }
+//         } else {
+//           // No existing cart found, create a new one
+//           connection.query(
+//             "INSERT INTO carts SET ?",
+//             newCart,
+//             (insertErr, insertResult) => {
+//               if (insertErr) {
+//                 console.log(insertErr);
+//                 return res.status(500).json(insertErr);
+//               }
+//               io.emit('create_cart' , {product_id:product_id , cartItemCount:cartItemCount , user_id : user_id})
+//               res.status(200).json(insertResult);
+//             }
+//           );
+//         }
+//       }
+//     );
+//   } catch (error) {
+//     console.log(error);
+//     res.status(500).json(error);
+//   }
+// });
+
+
+// router.post("/add-to-cart", (req, res) => {
+//   const user_id = req.body.user_id;
+//   const product_id = req.body.product_id;
+//   const cartItemCount = req.body.cartItemCount;
+//   const totalPrice = req.body.totalPrice;
+//   const newCart = {
+//     user_id: user_id,
+//     product_id: product_id,
+//     cartItemCount: cartItemCount,
+//     totalPrice: totalPrice,
+//     is_active: 1 // Set the new cart to active
+//   };
+
+//   try {
+//     connection.query(
+//       "SELECT * FROM carts WHERE user_id = ? AND product_id = ?",
+//       [user_id, product_id],
+//       (err, result) => {
+//         if (err) {
+//           console.log(err);
+//           return res.status(500).json(err);
+//         }
+
+//         if (result.length > 0) {
+//           console.log("Existing Cart");
+//           console.log(result[0]);
+//           const existingCart = result[0];
+//           const existingCartItemCount = existingCart.cartItemCount;
+
+//           if (existingCart.is_active === 0) {
+//             // Create a new cart since the existing one is inactive
+//             connection.query(
+//               "INSERT INTO carts SET ?",
+//               newCart,
+//               (insertErr, insertResult) => {
+//                 if (insertErr) {
+//                   console.log(insertErr);
+//                   return res.status(500).json(insertErr);
+//                 }
+//                 res.status(200).json(insertResult);
+//               }
+//             );
+//           } else {
+//             // Update the existing cart
+//             const updatedCartItemCount = existingCartItemCount + cartItemCount;
+//             connection.query(
+//               "UPDATE carts SET cartItemCount = ? WHERE user_id = ? AND product_id = ?",
+//               [updatedCartItemCount, user_id, product_id],
+//               (updateErr, updateResult) => {
+//                 if (updateErr) {
+//                   console.log(updateErr);
+//                   return res.status(500).json(updateErr);
+//                 }              
+//                 io.emit('create_cart' , {product_id:product_id , cartItemCount:cartItemCount , user_id : user_id , total_Price: totalPrice})
+//                 res.status(200).json(updateResult);
+//               }
+//             );
+//           }
+//         } else {
+//           // No existing cart found, create a new one
+//           connection.query(
+//             "INSERT INTO carts SET ?",
+//             newCart,
+//             (insertErr, insertResult) => {
+//               if (insertErr) {
+//                 console.log(insertErr);
+//                 return res.status(500).json(insertErr);
+//               }
+//               console.log(insertResult)
+//               io.emit('create_cart' , {product_id:product_id , cartItemCount:cartItemCount , user_id : user_id , total_Price: totalPrice})
+//               res.status(200).json(insertResult);
+//             }
+//           );
+//         }
+//       }
+//     );
+//   } catch (error) {
+//     console.log(error);
+//     res.status(500).json(error);
+//   }
+// });
+
+
 router.post("/add-to-cart", (req, res) => {
   const user_id = req.body.user_id;
   const product_id = req.body.product_id;
   const cartItemCount = req.body.cartItemCount;
   const totalPrice = req.body.totalPrice;
-
   const newCart = {
     user_id: user_id,
     product_id: product_id,
     cartItemCount: cartItemCount,
     totalPrice: totalPrice,
+    price:totalPrice/cartItemCount,
     is_active: 1 // Set the new cart to active
   };
 
   try {
     connection.query(
-      "SELECT * FROM carts WHERE user_id = ? AND product_id = ?",
+      "SELECT * FROM carts WHERE user_id = ? AND product_id = ? AND is_active = 1",
       [user_id, product_id],
       (err, result) => {
         if (err) {
@@ -30,40 +194,29 @@ router.post("/add-to-cart", (req, res) => {
         }
 
         if (result.length > 0) {
+          console.log("Existing Active Cart");
+          console.log(result[0]);
           const existingCart = result[0];
           const existingCartItemCount = existingCart.cartItemCount;
+          const existingTotalPrice = existingCart.totalPrice;
 
-          if (existingCart.is_active === 0) {
-            // Create a new cart since the existing one is inactive
-            connection.query(
-              "INSERT INTO carts SET ?",
-              newCart,
-              (insertErr, insertResult) => {
-                if (insertErr) {
-                  console.log(insertErr);
-                  return res.status(500).json(insertErr);
-                }
-                res.status(200).json(insertResult);
+          // Update the existing cart
+          const updatedCartItemCount = existingCartItemCount + cartItemCount;
+          const updatedTotalPrice = parseFloat(existingTotalPrice) + totalPrice; // convert ex
+          connection.query(
+            "UPDATE carts SET cartItemCount = ?, totalPrice = ? WHERE user_id = ? AND product_id = ?",
+            [updatedCartItemCount, updatedTotalPrice, user_id, product_id],
+            (updateErr, updateResult) => {
+              if (updateErr) {
+                console.log(updateErr);
+                return res.status(500).json(updateErr);
               }
-            );
-          } else {
-            // Update the existing cart
-            const updatedCartItemCount = existingCartItemCount + cartItemCount;
-            connection.query(
-              "UPDATE carts SET cartItemCount = ? WHERE user_id = ? AND product_id = ?",
-              [updatedCartItemCount, user_id, product_id],
-              (updateErr, updateResult) => {
-                if (updateErr) {
-                  console.log(updateErr);
-                  return res.status(500).json(updateErr);
-                }              
-                io.emit('create_cart' , {product_id:product_id , cartItemCount:cartItemCount , user_id : user_id})
-                res.status(200).json(updateResult);
-              }
-            );
-          }
+              io.emit('update_cart' , {product_id:product_id , cartItemCount:cartItemCount , user_id : user_id , total_Price: totalPrice})
+              res.status(200).json(updateResult);
+            }
+          );
         } else {
-          // No existing cart found, create a new one
+          // No existing active cart found, create a new one
           connection.query(
             "INSERT INTO carts SET ?",
             newCart,
@@ -72,7 +225,8 @@ router.post("/add-to-cart", (req, res) => {
                 console.log(insertErr);
                 return res.status(500).json(insertErr);
               }
-              io.emit('create_cart' , {product_id:product_id , cartItemCount:cartItemCount , user_id : user_id})
+              console.log(insertResult)
+              io.emit('create_cart' , {product_id:product_id , cartItemCount:cartItemCount , user_id : user_id , total_Price: totalPrice})
               res.status(200).json(insertResult);
             }
           );
@@ -86,15 +240,17 @@ router.post("/add-to-cart", (req, res) => {
 });
 
 
+
 router.get("/get/cart/:user_id", (req, res) => {
   const user_id = req.params.user_id;
 
   try {
     connection.query(
-      // " SELECT * FROM products p JOIN carts c on c.product_id = p.p_id where c.user_id = ?  ;",
-      // "SELECT p_id, productName , price , images , sum(cartItemCount) as total FROM products p JOIN carts c ON c.product_id = p.p_id  WHERE c.user_id = ? group by p.p_id,p.productName , p.price , p.images;",
-      "SELECT p_id, productName , is_active ,   totalPrice , images, sum(cartItemCount) as total FROM products p JOIN carts c ON c.product_id = p.p_id  WHERE c.user_id = ? group by p.p_id,p.productName ,c.is_active, c.totalPrice, p.images;",
-
+      `SELECT p_id, productName, is_active, totalPrice, c.price, images, SUM(cartItemCount) AS total
+      FROM products p 
+      JOIN carts c ON c.product_id = p.p_id  
+      WHERE c.user_id = ?
+      GROUP BY p.p_id, p.productName, c.is_active, c.totalPrice, c.price, p.images;`,
       [user_id],
       (err, result) => {
         if (err) {
@@ -108,6 +264,7 @@ router.get("/get/cart/:user_id", (req, res) => {
     res.status(500).json(error);
   }
 });
+
 
 //  Here this is for updating the cart...It will chekc firsrt if the cart exists (first query) then  it will fetch the product id (second query) then i have stored the difference between updated cartItemCount
 // and current (difference = quantity - existingCartItemCount)...Then if it is in negative then the price of these product will be also negatinve (difference * price )...then i have updated the existing quantity
