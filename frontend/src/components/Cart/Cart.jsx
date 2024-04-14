@@ -14,7 +14,6 @@ const Cart = () => {
 
   const [socket, setSocket] = useState(null); //For setting the socket connection
 
-
   var count = 0;
 
   const activeProducts = cartData.filter(
@@ -31,7 +30,6 @@ const Cart = () => {
     //Calling the function when first render happens of the app...to update the isLoggeid from false to true..by checking the condition.
     checkAuthentication(); // Call this when the component mounts
   }, []);
-
 
   useEffect(() => {
     const newSocket = io("http://localhost:8000");
@@ -78,43 +76,52 @@ const Cart = () => {
     fetchCartProducts();
   }, []);
 
+
+
   useEffect(() => {
     if (socket) {
-      socket.on("update_cart" , async ({user_id , product_id , finalPrice ,  updatedCartItemCount})=>{
-        alert("user_id:" + user_id + " " + "product_id :" +  product_id + " " +  "finalPrice :" +  finalPrice + " " + "updatedCartItemCount :"+ updatedCartItemCount)
+      socket.on(
+        "update_cart_product",
+        async ({ product_id, cartItemCount, user_id, total_Price }) => {
+          // Find the index of the product in the cartData array
+          const productIndex = cartData.findIndex(
+            (item) => item.p_id === product_id
+          );
+          if (productIndex !== -1) {
+            // Create a copy of the cartData array
+            const updatedCartData = [...cartData];
+            // Update the totalPrice of the corresponding product
+            updatedCartData[productIndex].totalPrice = parseFloat(total_Price);
+            // Update the cartData state with the updated array
+            setCartData(updatedCartData);
+          }
+        }
+      );
+      socket.on("delete_cart", async({user_id,product_id})=>{
+        const cookie = await fetch("http://localhost:5000/api/auth/check-cookie", {
+          method: "GET",
+          credentials: "include",
+        });
+        const cookieData = await cookie.json();
+        if(cookieData == user_id){
+          const productIndex = cartData.findIndex((product)=>product.p_id == product_id);
+          if (productIndex !== -1) {
+            // Create a copy of the cartData array
+            const updatedCartData = [...cartData];
+            // Remove the product from the array
+            updatedCartData.splice(productIndex, 1);
+            // Update the cartData state with the updated array
+            setCartData(updatedCartData);
+          }
+        }
       })
       return () => {
         if (socket) {
-          socket.off("update_cart");
-        }
-      };
-    }
-  }, [socket]);
-
-
-  useEffect(() => {
-    if (socket) {
-      socket.on("update_cart", async ({user_id , product_id , finalPrice ,  updatedCartItemCount}) => {
-        // Find the index of the product in the cartData array
-        const productIndex = cartData.findIndex(item => item.p_id === product_id);
-        if (productIndex !== -1) {
-          // Create a copy of the cartData array
-          const updatedCartData = [...cartData];
-          // Update the totalPrice of the corresponding product
-          updatedCartData[productIndex].totalPrice = parseFloat(finalPrice);
-          // Update the cartData state with the updated array
-          setCartData(updatedCartData);
-        }
-      });
-      return () => {
-        if (socket) {
-          socket.off("update_cart");
+          socket.off("update_cart_product");
         }
       };
     }
   }, [cartData, socket]);
-  
-  
 
   const checkProduct = async (id) => {
     const product = await axios.get(
@@ -153,6 +160,27 @@ const Cart = () => {
     }
   };
 
+  const deleteCartItem = async (productId) => {
+    alert(productId);
+    const cookie = await fetch("http://localhost:5000/api/auth/check-cookie", {
+      method: "GET",
+      credentials: "include",
+    });
+    const cookieData = await cookie.json();
+    try {
+      const response = await axios.delete(
+        "http://localhost:5000/api/cart/delete_cart/" + cookieData,{
+          data: { product_id: productId }
+        } 
+      );
+
+      // Handle the response as needed
+    } catch (error) {
+      console.error("Error updating cart item:", error);
+      // Handle error
+    }
+  };
+
   // Calculate total price for all items in the cart
   const totalCartPrice = cartData.reduce(
     (total, item) => total + parseFloat(item.totalPrice),
@@ -177,7 +205,18 @@ const Cart = () => {
                         cartData.map((slide, i) => (
                           <tr key={i}>
                             <td className={styles["cart-product-remove"]}>
-                              <a href="#">x</a>
+                              {/* <a onClick={()=>{deleteCartItem(slide.p_id)}} href="#">x</a> */}
+                              <button
+                                style={{
+                                  border: "none",
+                                  backgroundColor: "transparent",
+                                  padding: "0",
+                                }}
+                                onClick={() => deleteCartItem(slide.p_id)}
+                                type="button"
+                              >
+                                x
+                              </button>
                             </td>
                             <td className={styles["cart-product-image"]}>
                               <a
@@ -247,7 +286,7 @@ const Cart = () => {
                               </div>
                             </td>
                             <td className={styles["cart-product-subtotal"]}>
-                              $200.00
+                              ${slide.totalPrice}
                             </td>
                           </tr>
                         ))
@@ -331,7 +370,8 @@ const Cart = () => {
                   {count > 0 ? (
                     <Link
                       to={`/checkout/${cookie}`}
-                      className={styles["theme-btn-1 btn btn-effect-1"]}
+                      // className={styles["theme-btn-1 btn btn-effect-1"]}
+                      className={`${styles["theme-btn-1"]} ${styles["btn"]} ${styles["btn-effect-1"]}`}
                     >
                       Proceed to checkout
                     </Link>

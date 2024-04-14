@@ -330,7 +330,8 @@ router.put("/update_cart/:user_id", (req, res) => {
                     }
                     res.status(200).json(updateResult);
                     console.log("user_id:" + user_id + " " + "product_id :" +  product_id + " " +  "finalPrice :" +  finalPrice + " " + "updatedCartItemCount :"+ updatedCartItemCount)
-                    io.emit("update_cart" , {user_id:user_id , product_id : product_id , finalPrice : finalPrice ,  updatedCartItemCount : updatedCartItemCount})
+                    // io.emit("update_cart" , {user_id:user_id , product_id : product_id , finalPrice : finalPrice ,  updatedCartItemCount : updatedCartItemCount})
+                    io.emit("update_cart_product" , {product_id : product_id , cartItemCount : updatedCartItemCount ,  user_id:user_id ,  total_Price : finalPrice })
                   }
                 );
               } else {
@@ -372,13 +373,16 @@ router.put("/update_status/:user_id", (req, res) => {
 
 router.delete("/delete_cart/:user_id" , async (req,res)=>{
   const user_id = req.params.user_id; 
+  const product_id = req.body.product_id; 
+  console.log(user_id + product_id);
   try {
-    connection.query("DELETE carts WHERE user_id = ?" , [user_id] , (err , result)=>{
+    connection.query("DELETE from carts where user_id = ? AND product_id = ?" , [user_id,product_id] , (err , result)=>{
       if(err){
         console.log(err);
         return res.status(500).json(err);
       }else{
-        return  res.status(204).json({message:"Cart deleted successfullly"});
+        io.emit("delete_cart" , {user_id:user_id , product_id:product_id})
+        return  res.status(200).json({message:"Cart deleted successfullly"});
       }
     })
   }catch(error){
@@ -386,7 +390,6 @@ router.delete("/delete_cart/:user_id" , async (req,res)=>{
     return res.status(500).json(error)
   }
 })
-
 
 
 // Exporting

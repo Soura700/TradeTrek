@@ -66,8 +66,6 @@ const Header = ({ value }) => {
       socket.on(
         "create_cart",
         async ({ product_id, cartItemCount, user_id, total_Price }) => {
-          alert("called create cart")
-          alert(total_Price)
           // Fetch the product details based on product_id
           const existingProductIndex = activeProducts.findIndex(
             (product) => product.p_id === product_id
@@ -110,8 +108,6 @@ const Header = ({ value }) => {
       socket.on(
         "update_cart",
         async ({ product_id, cartItemCount, user_id, total_Price }) => {
-          alert("called update cart")
-          alert(total_Price)
           // Fetch the product details based on product_id
           const existingProductIndex = activeProducts.findIndex(
             (product) => product.p_id === product_id
@@ -139,8 +135,6 @@ const Header = ({ value }) => {
                 total: cartItemCount,
                 totalPrice: productDetails[0].price * cartItemCount,
               };
-              console.log("New Product");
-              console.log(newProduct);
               // Update the state to include the new product
               setActiveProducts([newProduct, ...activeProducts]);
             } catch (error) {
@@ -149,6 +143,30 @@ const Header = ({ value }) => {
           }
         }
       );
+
+      socket.on("delete_cart", async ({ user_id, product_id }) => {
+        const cookie = await fetch(
+          "http://localhost:5000/api/auth/check-cookie",
+          {
+            method: "GET",
+            credentials: "include",
+          }
+        );
+        const cookieData = await cookie.json();
+        if (cookieData == user_id) {
+          const productIndex = activeCartProduct.findIndex(
+            (product) => product.p_id == product_id
+          );
+          if (productIndex !== -1) {
+            // Create a copy of the cartData array
+            const updatedCartData = [...activeProducts];
+            // Remove the product from the array
+            updatedCartData.splice(productIndex, 1);
+            // Update the cartData state with the updated array
+            setActiveProducts(updatedCartData);
+          }
+        }
+      });
     }
 
     return () => {
@@ -163,7 +181,7 @@ const Header = ({ value }) => {
     // Calculate the total price whenever activeProducts changes
     let totalPrice = 0;
     activeProducts.forEach((product) => {
-      totalPrice += parseFloat(product.price *  product.total);
+      totalPrice += parseFloat(product.price * product.total);
     });
     setTotalPrice(totalPrice);
   }, [activeProducts]);

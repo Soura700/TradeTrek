@@ -220,3 +220,19 @@
     }
   }
   
+  /* Add this CSS to your stylesheet */
+.theme-btn-1 {
+  /* Your existing button styles */
+  background-color: #ffc107; /* Yellow color */
+  color: #fff; /* White text color */
+  padding: 10px 20px; /* Padding for the button */
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease; /* Transition for hover effect */
+}
+
+.theme-btn-1:hover {
+  color: #5ac8fa; /* White text color */
+  background-color: #ffca28; /* Lighter shade of yellow on hover */
+}
