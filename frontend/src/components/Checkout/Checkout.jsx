@@ -3,8 +3,8 @@ import "./checkout.css";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Checkout = () => {
   const { userId } = useParams();
@@ -18,6 +18,11 @@ const Checkout = () => {
   const [townCity, setTownCity] = useState("");
   const [state, setState] = useState("");
   const [zip, setZip] = useState("");
+  const [userDetailsExist, setUserDetailsExist] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [existingAddresses, setExistingAddresses] = useState([]);
+  const [selectedAddressId, setSelectedAddressId] = useState(null);
+  const [showSelect, setShowSelect] = useState(false);
 
   useEffect(() => {
     async function fetchCheckoutProducts() {
@@ -54,10 +59,37 @@ const Checkout = () => {
     fetchCheckoutProducts();
   }, []);
 
+  useEffect(() => {
+    // Check if user details exist and set state accordingly
+    // You need to implement the logic to check if user details exist
+    async function check(params) {
+      const userDetailsExist = await checkUserDetailsExist(); // Implement this function
+      setUserDetailsExist(userDetailsExist.success);
+      setExistingAddresses(userDetailsExist.data);
+    }
+    check();
+  }, []);
+
+  const handleDeliverToExistingAddress = () => {
+    setShowSelect(true);
+  };
+
+
+  const checkUserDetailsExist = async () => {
+    try {
+      const res = await axios.get(
+        "http://localhost:5000/api/checkout/get/checkout_order_details/" +
+          userId
+      );
+      return res.data;
+    } catch (error) {
+      console.error("Error creating shipping details:", error);
+      // Handle error, show an error message to the user
+    }
+  };
 
   // Handling the cash on delivery
   const handlePayWithCOD = async () => {
-
     try {
       const cookie = await fetch(
         "http://localhost:5000/api/auth/check-cookie",
@@ -72,6 +104,7 @@ const Checkout = () => {
         user_id: userId,
         paymentWay: "COD",
         totalPrice: totalPrice,
+        OrderDetailsID:selectedAddressId,
         orderItems: data.map((item) => ({
           product_id: item.p_id, // Use the correct field name for product ID
           cart_id: item.cart_id,
@@ -89,23 +122,18 @@ const Checkout = () => {
       // Handle success, show a message or navigate to the order confirmation page
       console.log("Order created successfully!");
 
-      data.forEach(async (item,index) => {
-
-
+      data.forEach(async (item, index) => {
         // Fetch the current countInStock value of the product
 
-
-
-        const productResponse = await axios.get(`http://localhost:5000/api/product/singleProduct/${item.p_id}`);
-
+        const productResponse = await axios.get(
+          `http://localhost:5000/api/product/singleProduct/${item.p_id}`
+        );
 
         const product = productResponse.data[0];
-        console.log(product)
+        console.log(product);
         const currentCountInStock = product.countInStock;
 
         const newCountInStock = currentCountInStock - item.totalCount;
-
-    
 
         // Update the products table with the new countInStock value
         await axios.put(
@@ -118,59 +146,53 @@ const Checkout = () => {
         await axios.put(
           `http://localhost:5000/api/cart/update_status/${userId}`,
           {
-            cart_id:item.cart_id,
+            cart_id: item.cart_id,
             is_active: 0,
           }
         );
 
         console.log("Updated successfully Successfully");
       });
-
-
     } catch (error) {
       console.error("Error creating order:", error);
       // Handle error, show an error message to the user
     }
   };
 
-  const notify = () => toast("Order has been created successfully");//Toastify
-
+  const notify = () => toast("Order has been created successfully"); //Toastify
 
   const handlePayWithOnline = async () => {
-    
     try {
-      const response = await fetch("http://localhost:5000/api/checkout-session", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ user_id: userId }), // Replace with actual user ID
-      });
+      const response = await fetch(
+        "http://localhost:5000/api/checkout-session",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ user_id: userId }), // Replace with actual user ID
+        }
+      );
 
       const data = await response.json();
 
       if (data.url) {
         // Redirect to the Stripe session URL (PayPal checkout)
         window.location.href = data.url;
-        
-        data.forEach(async (item,index) => {
 
-
+        data.forEach(async (item, index) => {
           // Fetch the current countInStock value of the product
-  
-  
-  
-          const productResponse = await axios.get(`http://localhost:5000/api/product/singleProduct/${item.p_id}`);
-  
-  
+
+          const productResponse = await axios.get(
+            `http://localhost:5000/api/product/singleProduct/${item.p_id}`
+          );
+
           const product = productResponse.data[0];
-          console.log(product)
+          console.log(product);
           const currentCountInStock = product.countInStock;
-  
+
           const newCountInStock = currentCountInStock - item.totalCount;
-  
-      
-  
+
           // Update the products table with the new countInStock value
           await axios.put(
             `http://localhost:5000/api/product/update/${item.p_id}`,
@@ -178,15 +200,15 @@ const Checkout = () => {
               countInStock: newCountInStock,
             }
           );
-  
+
           await axios.put(
             `http://localhost:5000/api/cart/update_status/${userId}`,
             {
-              cart_id:item.cart_id,
+              cart_id: item.cart_id,
               is_active: 0,
             }
           );
-  
+
           console.log("Updated successfully Successfully");
         });
       } else {
@@ -195,34 +217,45 @@ const Checkout = () => {
     } catch (error) {
       console.error("Error:", error);
     }
-  }
-
+  };
 
   const handleCreateShippingDetails = async () => {
     try {
       // Make API request to create shipping details
-      await axios.post("http://localhost:5000/api/checkout/checkout_order_details", {
-        userId,
-        country,
-        address,
-        landmark,
-        townCity,
-        state,
-        zip
-      });
+      await axios.post(
+        "http://localhost:5000/api/checkout/checkout_order_details",
+        {
+          userId,
+          country,
+          address,
+          landmark,
+          townCity,
+          state,
+          zip,
+        }
+      );
 
       console.log("Done");
 
       // Notify user about successful creation of shipping details
-      // notify("Shipping details created successfully");
+      notify("Shipping details created successfully");
     } catch (error) {
       console.error("Error creating shipping details:", error);
       // Handle error, show an error message to the user
       notify("Error creating shipping details");
     }
   };
-  
 
+  const openModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
+  const handleSelectChange = (event) => {
+     setSelectedAddressId(event.target.value);
+  };
 
   return (
     <>
@@ -289,121 +322,330 @@ const Checkout = () => {
                     <div id="errors">
                       <ul className="error"></ul>
                     </div>
-                    <form
-                      id="shippingForm"
-                      // action="/api/bill/createbill"
-                      // method="post"
-                    >
-                      <input
-                        type="hidden"
-                        name="id"
-                        id="userId"
-                        defaultValue=""
-                      />
-                      <h6>Shipping Information</h6>
-                      <div className="row" style={{ marginTop: 5 }}></div>
-                      <div className="row">
-                        <div className="col-lg-4 col-md-6">
-                          <h6>Country</h6>
-                          <div className="input-item">
-                            {/* <select className="nice-select" name="country"> */}
-                            <select
-                              className="nice-select"
-                              name="country"
-                              value={country}
-                              onChange={(e) => setCountry(e.target.value)}
-                            >
-                              <option>Select Country</option>
-                              <option>India</option>
-                              <option>Canada</option>
-                              <option>United Kingdom (UK)</option>
-                              <option>United States (US)</option>
-                            </select>
-                          </div>
-                        </div>
-                        <div className="col-lg-12 col-md-12">
-                          <h6>Address</h6>
-                          <div className="row">
-                            <div className="col-md-6">
-                              <div className="input-item">
-                                <input
-                                  className="input-box"
-                                  type="text"
-                                  name="address"
-                                  value={address}
-                                  onChange={(e) => setAddress(e.target.value)}
-                                  placeholder="House number and street name"
-                                />
-                              </div>
-                            </div>
-                            <h6>Landmark</h6>
-                            <div className="col-md-6">
-                              <div className="input-item">
-                                <input
-                                  className="input-box"
-                                  type="text"
-                                  name="landmark"
-                                  value={landmark}
-                                  onChange={(e) => setLandmark(e.target.value)}
-                                  placeholder="Apartment, suite, unit , landmark etc. (optional)"
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="col-lg-4 col-md-6">
-                          <h6>Town / City</h6>
-                          <div className="input-item">
-                            <input
-                              className="input-box"
-                              type="text"
-                              name="town"
-                              value={townCity}
-                              onChange={(e) => setTownCity(e.target.value)}
-                              placeholder="City"
-                            />
-                          </div>
-                        </div>
-                        <div className="col-lg-4 col-md-6">
-                          <h6>State </h6>
-                          <div className="input-item">
-                            <input
-                              className="input-box"
-                              type="text"
-                              name="state"
-                              value={state}
-                              onChange={(e) => setState(e.target.value)}
-                              placeholder="State"
-                            />
-                          </div>
-                        </div>
-                        <div className="col-lg-4 col-md-6">
-                          <h6>Zip</h6>
-                          <div className="input-item">
-                            <input
-                              className="input-box"
-                              type="text"
-                              name="zip"
-                              value={zip}
-                              onChange={(e) => setZip(e.target.value)}
-                              placeholder="Zip"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                      <h6>Order Notes (optional)</h6>
-                      <div className="input-item input-item-textarea ltn__custom-icon">
-                        <textarea
-                          className="input-box"
-                          name="ltn__message"
-                          placeholder="Notes about your order, e.g. special notes for delivery."
-                          defaultValue={""}
+                    {!userDetailsExist ? (
+                      <form
+                        id="shippingForm"
+                        // action="/api/bill/createbill"
+                        // method="post"
+                      >
+                        <input
+                          type="hidden"
+                          name="id"
+                          id="userId"
+                          defaultValue=""
                         />
+                        <h6>Shipping Information</h6>
+                        <div className="row" style={{ marginTop: 5 }}></div>
+                        <div className="row">
+                          <div className="col-lg-4 col-md-6">
+                            <h6>Country</h6>
+                            <div className="input-item">
+                              {/* <select className="nice-select" name="country"> */}
+                              <select
+                                className="nice-select"
+                                name="country"
+                                value={country}
+                                onChange={(e) => setCountry(e.target.value)}
+                              >
+                                <option>Select Country</option>
+                                <option>India</option>
+                                <option>Canada</option>
+                                <option>United Kingdom (UK)</option>
+                                <option>United States (US)</option>
+                              </select>
+                            </div>
+                          </div>
+                          <div className="col-lg-12 col-md-12">
+                            <h6>Address</h6>
+                            <div className="row">
+                              <div className="col-md-6">
+                                <div className="input-item">
+                                  <input
+                                    className="input-box"
+                                    type="text"
+                                    name="address"
+                                    value={address}
+                                    onChange={(e) => setAddress(e.target.value)}
+                                    placeholder="House number and street name"
+                                  />
+                                </div>
+                              </div>
+                              <h6>Landmark</h6>
+                              <div className="col-md-6">
+                                <div className="input-item">
+                                  <input
+                                    className="input-box"
+                                    type="text"
+                                    name="landmark"
+                                    value={landmark}
+                                    onChange={(e) =>
+                                      setLandmark(e.target.value)
+                                    }
+                                    placeholder="Apartment, suite, unit , landmark etc. (optional)"
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="col-lg-4 col-md-6">
+                            <h6>Town / City</h6>
+                            <div className="input-item">
+                              <input
+                                className="input-box"
+                                type="text"
+                                name="town"
+                                value={townCity}
+                                onChange={(e) => setTownCity(e.target.value)}
+                                placeholder="City"
+                              />
+                            </div>
+                          </div>
+                          <div className="col-lg-4 col-md-6">
+                            <h6>State </h6>
+                            <div className="input-item">
+                              <input
+                                className="input-box"
+                                type="text"
+                                name="state"
+                                value={state}
+                                onChange={(e) => setState(e.target.value)}
+                                placeholder="State"
+                              />
+                            </div>
+                          </div>
+                          <div className="col-lg-4 col-md-6">
+                            <h6>Zip</h6>
+                            <div className="input-item">
+                              <input
+                                className="input-box"
+                                type="text"
+                                name="zip"
+                                value={zip}
+                                onChange={(e) => setZip(e.target.value)}
+                                placeholder="Zip"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                        <h6>Order Notes (optional)</h6>
+                        <div className="input-item input-item-textarea ltn__custom-icon">
+                          <textarea
+                            className="input-box"
+                            name="ltn__message"
+                            placeholder="Notes about your order, e.g. special notes for delivery."
+                            defaultValue={""}
+                          />
+                        </div>
+                        <button
+                          className="btn theme-btn-1 btn-effect-1 text-uppercase"
+                          onClick={handleCreateShippingDetails}
+                        >
+                          Create Shipping Details
+                        </button>
+                      </form>
+                    ) : (
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                        }}
+                      >
+                        <button
+                          onClick={handleDeliverToExistingAddress}
+                          className="btn theme-btn-1 btn-effect-1 text-uppercase"
+                          style={{ marginRight: "10px" }} // Adjust the margin as needed
+                        >
+                          Deliver to existing address
+                        </button>
+                        <button
+                          onClick={openModal}
+                          // onClick={handleDeliverToAddress}
+                          className="btn theme-btn-1 btn-effect-1 text-uppercase"
+                        >
+                          Deliver to new address
+                        </button>
                       </div>
-                      <button className="btn theme-btn-1 btn-effect-1 text-uppercase" onClick={handleCreateShippingDetails}>
-                        Create Shipping Details
-                      </button>
-                    </form>
+                    )}
+                    <div
+                      style={{
+                        marginTop: showSelect ? "10px" : "0",
+                        transition: "margin-top 0.3s ease",
+                        opacity: showSelect ? 1 : 0,
+                        maxHeight: showSelect ? "100%" : "0",
+                        overflow: "hidden",
+                      }}
+                    >
+                      {showSelect && (
+                        <div style={{ marginTop: "10px" }}>
+                          <label htmlFor="existingAddress">
+                            Select existing address:
+                          </label>
+                          <select
+                            style={{
+                              width: "100%",
+                              padding: "5px",
+                              borderRadius: "5px",
+                              border: "1px solid #ccc",
+                              backgroundColor: "#fff",
+                              color: "#333",
+                              fontSize: "14px",
+                            }}
+                            id="existingAddress"
+                            onChange={handleSelectChange}
+                          >
+                            <option value="">Select an address</option>
+                            {/* Render options here */}
+                            {existingAddresses.map((address, index) => (
+                              <option key={index} value={address.OrderDetailsID}>
+                                {address.Address +
+                                  "," +
+                                  address.Landmark +
+                                  "," +
+                                  address.TownCity +
+                                  "," +
+                                  address.State}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      )}
+                    </div>
+                    {isModalOpen && (
+                      // <div className="modal">
+                      <div className={isModalOpen ? "modal_open" : "modal"}>
+                        <div className="modal-content">
+                          {/* Modal content */}
+                          <span className="close" onClick={closeModal}>
+                            &times;
+                          </span>
+                          <p style={{ textAlign: "center" }}>New Address</p>
+                          <form
+                            id="shippingForm"
+                            // action="/api/bill/createbill"
+                            // method="post"
+                          >
+                            <input
+                              type="hidden"
+                              name="id"
+                              id="userId"
+                              defaultValue=""
+                            />
+                            <h6>Shipping Information</h6>
+                            <div className="row" style={{ marginTop: 5 }}></div>
+                            <div className="row">
+                              <div className="col-lg-4 col-md-6">
+                                <h6>Country</h6>
+                                <div className="input-item">
+                                  {/* <select className="nice-select" name="country"> */}
+                                  <select
+                                    className="nice-select"
+                                    name="country"
+                                    value={country}
+                                    onChange={(e) => setCountry(e.target.value)}
+                                  >
+                                    <option>Select Country</option>
+                                    <option>India</option>
+                                    <option>Canada</option>
+                                    <option>United Kingdom (UK)</option>
+                                    <option>United States (US)</option>
+                                  </select>
+                                </div>
+                              </div>
+                              <div className="col-lg-12 col-md-12">
+                                <h6>Address</h6>
+                                <div className="row">
+                                  <div className="col-md-6">
+                                    <div className="input-item">
+                                      <input
+                                        className="input-box"
+                                        type="text"
+                                        name="address"
+                                        value={address}
+                                        onChange={(e) =>
+                                          setAddress(e.target.value)
+                                        }
+                                        placeholder="House number and street name"
+                                      />
+                                    </div>
+                                  </div>
+                                  <h6>Landmark</h6>
+                                  <div className="col-md-6">
+                                    <div className="input-item">
+                                      <input
+                                        className="input-box"
+                                        type="text"
+                                        name="landmark"
+                                        value={landmark}
+                                        onChange={(e) =>
+                                          setLandmark(e.target.value)
+                                        }
+                                        placeholder="Apartment, suite, unit , landmark etc. (optional)"
+                                      />
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="col-lg-4 col-md-6">
+                                <h6>Town / City</h6>
+                                <div className="input-item">
+                                  <input
+                                    className="input-box"
+                                    type="text"
+                                    name="town"
+                                    value={townCity}
+                                    onChange={(e) =>
+                                      setTownCity(e.target.value)
+                                    }
+                                    placeholder="City"
+                                  />
+                                </div>
+                              </div>
+                              <div className="col-lg-4 col-md-6">
+                                <h6>State </h6>
+                                <div className="input-item">
+                                  <input
+                                    className="input-box"
+                                    type="text"
+                                    name="state"
+                                    value={state}
+                                    onChange={(e) => setState(e.target.value)}
+                                    placeholder="State"
+                                  />
+                                </div>
+                              </div>
+                              <div className="col-lg-4 col-md-6">
+                                <h6>Zip</h6>
+                                <div className="input-item">
+                                  <input
+                                    className="input-box"
+                                    type="text"
+                                    name="zip"
+                                    value={zip}
+                                    onChange={(e) => setZip(e.target.value)}
+                                    placeholder="Zip"
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                            <h6>Order Notes (optional)</h6>
+                            <div className="input-item input-item-textarea ltn__custom-icon">
+                              <textarea
+                                className="input-box"
+                                name="ltn__message"
+                                placeholder="Notes about your order, e.g. special notes for delivery."
+                                defaultValue={""}
+                              />
+                            </div>
+                            <button
+                              className="btn theme-btn-1 btn-effect-1 text-uppercase"
+                              onClick={handleCreateShippingDetails}
+                            >
+                              Create Shipping Details
+                            </button>
+                          </form>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -481,7 +723,8 @@ const Checkout = () => {
                     >
                       <div className="card-body">
                         <p>Pay online.</p>
-                        <button onClick={handlePayWithOnline}
+                        <button
+                          onClick={handlePayWithOnline}
                           className="btn theme-btn-1 btn-effect-1 text-uppercase"
                           id="cod-btn"
                         >
@@ -599,7 +842,7 @@ const Checkout = () => {
           </div>
         </div>
       </div>
-      <ToastContainer/>
+      <ToastContainer />
       {/* WISHLIST AREA START */}
     </>
   );

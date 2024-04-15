@@ -12,6 +12,7 @@ router.post("/create-order", async (req, res) => {
       priceAfterDiscount,
       totalPrice,
       orderItems,
+      OrderDetailsID
     } = req.body;
 
     const oneMonthAgo = new Date();
@@ -22,8 +23,8 @@ router.post("/create-order", async (req, res) => {
 
     // Insert order data into 'orders' table
     const orderQuery = `
-      INSERT INTO orders (user_id, paymentWay, discount, priceAfterDiscount, totalPrice, order_date)
-      VALUES (?, ?, ?, ?, ?, NOW())
+      INSERT INTO orders (user_id, paymentWay, discount, priceAfterDiscount, totalPrice, order_date , OrderDetailsID)
+      VALUES (?, ?, ?, ?, ?, NOW() , ?)
     `;
     const orderValues = [
       user_id,
@@ -31,6 +32,7 @@ router.post("/create-order", async (req, res) => {
       discount,
       priceAfterDiscount,
       totalPrice,
+      OrderDetailsID
     ];
     console.log(user_id);
 
