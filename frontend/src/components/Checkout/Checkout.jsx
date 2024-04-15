@@ -12,6 +12,13 @@ const Checkout = () => {
   const [data, setData] = useState([]);
   const [totalPrice, setTotalPrice] = useState(0); // Initialize total price as 0
 
+  const [country, setCountry] = useState("");
+  const [address, setAddress] = useState("");
+  const [landmark, setLandmark] = useState("");
+  const [townCity, setTownCity] = useState("");
+  const [state, setState] = useState("");
+  const [zip, setZip] = useState("");
+
   useEffect(() => {
     async function fetchCheckoutProducts() {
       try {
@@ -188,8 +195,34 @@ const Checkout = () => {
     } catch (error) {
       console.error("Error:", error);
     }
-
   }
+
+
+  const handleCreateShippingDetails = async () => {
+    try {
+      // Make API request to create shipping details
+      await axios.post("http://localhost:5000/api/checkout/checkout_order_details", {
+        userId,
+        country,
+        address,
+        landmark,
+        townCity,
+        state,
+        zip
+      });
+
+      console.log("Done");
+
+      // Notify user about successful creation of shipping details
+      // notify("Shipping details created successfully");
+    } catch (error) {
+      console.error("Error creating shipping details:", error);
+      // Handle error, show an error message to the user
+      notify("Error creating shipping details");
+    }
+  };
+  
+
 
   return (
     <>
@@ -215,7 +248,7 @@ const Checkout = () => {
                   >
                     <div className="ltn_coupon-code-form ltn__form-box">
                       <p>Please login your accont.</p>
-                      <form className="checkout_form" action="#">
+                      <form className="checkout_form">
                         <div className="row">
                           <div className="col-md-6">
                             <div className="input-item input-item-name ltn__custom-icon">
@@ -258,8 +291,8 @@ const Checkout = () => {
                     </div>
                     <form
                       id="shippingForm"
-                      action="/api/bill/createbill"
-                      method="post"
+                      // action="/api/bill/createbill"
+                      // method="post"
                     >
                       <input
                         type="hidden"
@@ -273,7 +306,13 @@ const Checkout = () => {
                         <div className="col-lg-4 col-md-6">
                           <h6>Country</h6>
                           <div className="input-item">
-                            <select className="nice-select" name="country">
+                            {/* <select className="nice-select" name="country"> */}
+                            <select
+                              className="nice-select"
+                              name="country"
+                              value={country}
+                              onChange={(e) => setCountry(e.target.value)}
+                            >
                               <option>Select Country</option>
                               <option>India</option>
                               <option>Canada</option>
@@ -291,16 +330,21 @@ const Checkout = () => {
                                   className="input-box"
                                   type="text"
                                   name="address"
+                                  value={address}
+                                  onChange={(e) => setAddress(e.target.value)}
                                   placeholder="House number and street name"
                                 />
                               </div>
                             </div>
+                            <h6>Landmark</h6>
                             <div className="col-md-6">
                               <div className="input-item">
                                 <input
                                   className="input-box"
                                   type="text"
                                   name="landmark"
+                                  value={landmark}
+                                  onChange={(e) => setLandmark(e.target.value)}
                                   placeholder="Apartment, suite, unit , landmark etc. (optional)"
                                 />
                               </div>
@@ -314,6 +358,8 @@ const Checkout = () => {
                               className="input-box"
                               type="text"
                               name="town"
+                              value={townCity}
+                              onChange={(e) => setTownCity(e.target.value)}
                               placeholder="City"
                             />
                           </div>
@@ -325,6 +371,8 @@ const Checkout = () => {
                               className="input-box"
                               type="text"
                               name="state"
+                              value={state}
+                              onChange={(e) => setState(e.target.value)}
                               placeholder="State"
                             />
                           </div>
@@ -336,6 +384,8 @@ const Checkout = () => {
                               className="input-box"
                               type="text"
                               name="zip"
+                              value={zip}
+                              onChange={(e) => setZip(e.target.value)}
                               placeholder="Zip"
                             />
                           </div>
@@ -350,7 +400,7 @@ const Checkout = () => {
                           defaultValue={""}
                         />
                       </div>
-                      <button className="btn theme-btn-1 btn-effect-1 text-uppercase">
+                      <button className="btn theme-btn-1 btn-effect-1 text-uppercase" onClick={handleCreateShippingDetails}>
                         Create Shipping Details
                       </button>
                     </form>
