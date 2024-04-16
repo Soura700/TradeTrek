@@ -2,6 +2,112 @@ const router = require("express").Router();
 const connection = require("../connection");
 const io = require("../socket");
 
+// router.post("/create-order", async (req, res) => {
+//   console.log("Done");
+//   try {
+//     const {
+//       user_id,
+//       paymentWay,
+//       discount,
+//       priceAfterDiscount,
+//       totalPrice,
+//       orderItems,
+//       OrderDetailsID
+//     } = req.body;
+
+//     const oneMonthAgo = new Date();
+//     oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+
+//     const sqlQuery =
+//       " SELECT * FROM users WHERE lastLoginTime >= ? ORDER BY lastLoginTime DESC";
+
+//     // Insert order data into 'orders' table
+//     const orderQuery = `
+//       INSERT INTO orders (user_id, paymentWay, discount, priceAfterDiscount, totalPrice, order_date , OrderDetailsID)
+//       VALUES (?, ?, ?, ?, ?, NOW() , ?)
+//     `;
+//     const orderValues = [
+//       user_id,
+//       paymentWay,
+//       discount,
+//       priceAfterDiscount,
+//       totalPrice,
+//       OrderDetailsID
+//     ];
+
+//     connection.query(orderQuery, orderValues, (orderError, orderResult) => {
+//       if (orderError) {
+//         console.error("Error creating order:", orderError);
+//         res
+//           .status(500)
+//           .json({ error: "An error occurred while creating the order" });
+//         return;
+//       }
+
+//       const orderId = orderResult.insertId;
+
+//       // Insert order items into 'order_items' table
+//       orderItems.forEach((item) => {
+//         const { product_id, cart_id, quantity, price } = item;
+
+//         const orderItemQuery = `
+//         INSERT INTO order_items (order_id, product_id, cart_id, quantity, price)
+//         VALUES (?, ?, ?, ?, ?)
+//       `;
+//         const orderItemValues = [orderId, product_id, cart_id, quantity, price];
+
+//         connection.query(orderItemQuery, orderItemValues, (itemError) => {
+//           if (itemError) {
+//             console.error("Error inserting order item:", itemError);
+//           }
+//         });
+
+//         // Emit socket event here
+//         connection.query(
+//           "SELECT * FROM users WHERE id = ?",
+//           [user_id],
+//           (userError, userResult) => {
+//             if (userError) {
+//               console.error("Error fetching user:", userError);
+//               return;
+//             }
+
+//             connection.query(
+//               "SELECT * FROM products WHERE p_id = ?",
+//               [product_id],
+//               (productError, productResult) => {
+//                 if (productError) {
+//                   console.error("Error fetching product:", productError);
+//                   return;
+//                 }
+
+
+
+//                 // Emit socket event
+//                 io.emit("create_order", {
+//                   user_id: user_id,
+//                   order_item_ids: orderId,
+//                   order_ids: orderId,
+//                   product_ids: product_id,
+//                   user_names: userResult[0].fullname,
+//                   product_names: productResult[0].productName,
+//                 });
+//               }
+//             );
+//           }
+//         );
+//       });
+
+//       res.status(201).json({ message: "Order created successfully" });
+//     });
+//   } catch (error) {
+//     console.error("Error creating order:", error);
+//     res
+//       .status(500)
+//       .json({ error: "An error occurred while creating the order" });
+//   }
+// });
+
 router.post("/create-order", async (req, res) => {
   console.log("Done");
   try {
@@ -18,106 +124,100 @@ router.post("/create-order", async (req, res) => {
     const oneMonthAgo = new Date();
     oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
 
-    const sqlQuery =
-      " SELECT * FROM users WHERE lastLoginTime >= ? ORDER BY lastLoginTime DESC";
-
-    // Insert order data into 'orders' table
-    const orderQuery = `
-      INSERT INTO orders (user_id, paymentWay, discount, priceAfterDiscount, totalPrice, order_date , OrderDetailsID)
-      VALUES (?, ?, ?, ?, ?, NOW() , ?)
-    `;
-    const orderValues = [
-      user_id,
-      paymentWay,
-      discount,
-      priceAfterDiscount,
-      totalPrice,
-      OrderDetailsID
-    ];
-    console.log(user_id);
-
-    connection.query(orderQuery, orderValues, (orderError, orderResult) => {
-      if (orderError) {
-        console.error("Error creating order:", orderError);
-        res
-          .status(500)
-          .json({ error: "An error occurred while creating the order" });
+    // Fetch order details based on OrderDetailsID
+    const orderDetailsQuery = "SELECT * FROM OrderDetails WHERE OrderDetailsID = ?";
+    connection.query(orderDetailsQuery, [OrderDetailsID], (orderDetailsError, orderDetailsResult) => {
+      if (orderDetailsError) {
+        console.error("Error fetching order details:", orderDetailsError);
+        res.status(500).json({ error: "An error occurred while fetching order details" });
         return;
       }
 
-      const orderId = orderResult.insertId;
+      const orderDetails = orderDetailsResult[0]; // Assuming there's only one order detail for the given OrderDetailsID
 
-      // Insert order items into 'order_items' table
-
-      console.log("Order Items" + orderItems);
-
-      orderItems.forEach((item) => {
-        const { product_id, cart_id, quantity, price } = item;
-
-        const orderItemQuery = `
-        INSERT INTO order_items (order_id, product_id, cart_id, quantity, price)
-        VALUES (?, ?, ?, ?, ?)
+      // Insert order data into 'orders' table
+      const orderQuery = `
+        INSERT INTO orders (user_id, paymentWay, discount, priceAfterDiscount, totalPrice, order_date, OrderDetailsID)
+        VALUES (?, ?, ?, ?, ?, NOW(), ?)
       `;
-        const orderItemValues = [orderId, product_id, cart_id, quantity, price];
+      const orderValues = [
+        user_id,
+        paymentWay,
+        discount,
+        priceAfterDiscount,
+        totalPrice,
+        OrderDetailsID
+      ];
 
-        connection.query(orderItemQuery, orderItemValues, (itemError) => {
-          if (itemError) {
-            console.error("Error inserting order item:", itemError);
-          }
+      connection.query(orderQuery, orderValues, (orderError, orderResult) => {
+        if (orderError) {
+          console.error("Error creating order:", orderError);
+          res.status(500).json({ error: "An error occurred while creating the order" });
+          return;
+        }
+
+        const orderId = orderResult.insertId;
+
+        // Insert order items into 'order_items' table
+        orderItems.forEach((item) => {
+          const { product_id, cart_id, quantity, price } = item;
+
+          const orderItemQuery = `
+            INSERT INTO order_items (order_id, product_id, cart_id, quantity, price)
+            VALUES (?, ?, ?, ?, ?)
+          `;
+          const orderItemValues = [orderId, product_id, cart_id, quantity, price];
+
+          connection.query(orderItemQuery, orderItemValues, (itemError) => {
+            if (itemError) {
+              console.error("Error inserting order item:", itemError);
+            }
+          });
+
+          // Emit socket event here
+          connection.query(
+            "SELECT * FROM users WHERE id = ?",
+            [user_id],
+            (userError, userResult) => {
+              if (userError) {
+                console.error("Error fetching user:", userError);
+                return;
+              }
+
+              connection.query(
+                "SELECT * FROM products WHERE p_id = ?",
+                [product_id],
+                (productError, productResult) => {
+                  if (productError) {
+                    console.error("Error fetching product:", productError);
+                    return;
+                  }
+
+                  // Emit socket event
+                  io.emit("create_order", {
+                    user_id: user_id,
+                    order_item_ids: orderId,
+                    order_ids: orderId,
+                    product_ids: product_id,
+                    user_names: userResult[0].fullname,
+                    product_names: productResult[0].productName,
+                    order_details: orderDetails // Include order details in the socket event data
+                  });
+                }
+              );
+            }
+          );
         });
 
-        // Emit socket event here
-        connection.query(
-          "SELECT * FROM users WHERE id = ?",
-          [user_id],
-          (userError, userResult) => {
-            if (userError) {
-              console.error("Error fetching user:", userError);
-              return;
-            }
-
-            connection.query(
-              "SELECT * FROM products WHERE p_id = ?",
-              [product_id],
-              (productError, productResult) => {
-                if (productError) {
-                  console.error("Error fetching product:", productError);
-                  return;
-                }
-
-                // connection.query("UPDATE carts SET isActive = 1 WHERE product_id = ? AND user_id = ?" ,[product_id,user_id],(err,result)=>{
-                //   if(err){
-                //     console.log("Error");
-                //     res.status(500).json({message:"Error in updating the cast status"});
-                //   }else{
-                //     console.log("Cart Updated Successfully");
-                //   }
-                // })
-
-                // Emit socket event
-                io.emit("create_order", {
-                  user_id: user_id,
-                  order_item_ids: orderId,
-                  order_ids: orderId,
-                  product_ids: product_id,
-                  user_names: userResult[0].fullname,
-                  product_names: productResult[0].productName,
-                });
-              }
-            );
-          }
-        );
+        res.status(201).json({ message: "Order created successfully" });
       });
-
-      res.status(201).json({ message: "Order created successfully" });
     });
   } catch (error) {
     console.error("Error creating order:", error);
-    res
-      .status(500)
-      .json({ error: "An error occurred while creating the order" });
+    res.status(500).json({ error: "An error occurred while creating the order" });
   }
 });
+
 
 // router.post("/create-order", async (req, res) => {
 //   try {
