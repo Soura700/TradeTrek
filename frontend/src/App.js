@@ -18,6 +18,8 @@ import Reset from './components/Reset/Reset';
 import Forgot from './components/Forgot/Forgot';
 import SingleOrder from "./components/SingleOrder/SingleOrder.jsx";
 import Admin from './pages/Admin/Admin.jsx';
+import ForgotPasswordForm from './components/SignInSignUpForm/ForgotPasswordForm.js';
+import ResetPasswordForm from './components/SignInSignUpForm/ResetPasswordForm.js';
 
 
 
@@ -126,7 +128,7 @@ function App() {
     },
     {
       path: "/forgot-password",
-      element: <Forgot />,
+      element: <ForgotPasswordForm />,
     },
     // {
     //   path: "/reset-password/:id/:token",
@@ -134,7 +136,7 @@ function App() {
     // },
     {
       path: "/reset-password/:id/:token",
-      element: <Reset />,
+      element: <ResetPasswordForm />,
     },
 
     

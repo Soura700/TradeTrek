@@ -22,6 +22,7 @@ const Header = ({ value }) => {
   const [activeProducts, setActiveProducts] = useState([]);
   var [totalPrice, setTotalPrice] = useState(0);
 
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const [socket, setSocket] = useState(null); //For setting the socket connection
 
   const toggleMenu = () => {
@@ -220,6 +221,7 @@ const Header = ({ value }) => {
         );
         const suggestionsData = await response.json();
         setSuggestions(suggestionsData);
+        setShowSuggestions(true)
       } catch (error) {
         console.log("ERROR FETCHING DATA" + error);
       }
@@ -239,6 +241,11 @@ const Header = ({ value }) => {
       console.error("Error searching:", error);
     }
   };
+
+  const handleSuggestionClick = async () =>{
+    setShowSuggestions(false);
+    setSearchTerm("");
+  }
 
   var totalCartItem = 0;
   // var totalPrice = 0;
@@ -290,10 +297,11 @@ const Header = ({ value }) => {
           ></input>
 
           {suggestions.length > 0 && (
-            <div className={css.suggestion_box}>
+            <div className={css.suggestion_box} style={{display :showSuggestions ?'block' : 'none'}}>
               {suggestions.map((suggestion) => (
                 <Link
                   key={suggestion.id}
+                  onClick={handleSuggestionClick}
                   to={`/singleProduct/${suggestion.p_id}/${suggestion.productName}`}
                 >
                   <div key={suggestion.id}>{suggestion.productName}</div>
