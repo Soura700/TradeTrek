@@ -32,6 +32,15 @@ router.post('/webhook', async (req, res) => {
 
 router.post("/checkout-session", async (req, res) => {
   const userId = req.body.user_id;
+  const {
+    paymentWay,
+    discount,
+    priceAfterDiscount,
+    totalPrice,
+    orderItems,
+    OrderDetailsID
+  } = req.body;
+
 
   try {
     // Fetch the cart products for the user from the database
@@ -46,7 +55,7 @@ router.post("/checkout-session", async (req, res) => {
         return res.status(404).json({ message: "User not found." });
       }
 
-      connection.query('SELECT * FROM carts WHERE user_id = ?', [userId], (err, cartResults) => {
+      connection.query('SELECT * FROM carts WHERE user_id = ? AND is_active = 1', [userId], (err, cartResults) => {
         if (err) {
           console.log(err);
           return res.status(500).json(err);
@@ -73,12 +82,10 @@ router.post("/checkout-session", async (req, res) => {
 
         Promise.all(cartPromises)
         .then(async (cartsWithProducts) => {
-
           // Print carts with products
-
-
           const lineItems = [];
           cartsWithProducts.forEach((cart)=>{
+            console.log(cart);
             cart.cartProducts.forEach((item)=>{
 
 
@@ -89,28 +96,79 @@ router.post("/checkout-session", async (req, res) => {
                     name:item.productName,
                     // images:[`http://localhost:5000/${item.images[0]}`]
                   },
-                  unit_amount:item.totalPrice * 100,
+                  unit_amount:item.price * 100,
                 },
                 quantity:item.cartItemCount,
               })
             })
           })
-
           // Create a session using Stripe
           // Replace this part with your Stripe session creation code
-
-
-
             // Create a session using Stripe
-            const session = await stripe.checkout.sessions.create({
+            // const session = await stripe.checkout.sessions.create({
+            //   payment_method_types: ["card"],
+            //   mode: "payment",
+            //   line_items: lineItems,
+            //   success_url: "http://localhost:3000", // Replace with your success URL
+            //   cancel_url: "http://localhost:5000/checkout", // Replace with your cancel URL
+            //   // shipping_address_collection: {
+            //   //   allowed_countries: ["US", "UK", "Canada"] // Add countries outside India
+            //   // }
+            // });
+            // res.json({ url: session.url }); // Replace 'stripe_session_url' with the actual session URL
+
+            stripe.checkout.sessions.create({
               payment_method_types: ["card"],
               mode: "payment",
               line_items: lineItems,
               success_url: "http://localhost:5000", // Replace with your success URL
               cancel_url: "http://localhost:5000/checkout", // Replace with your cancel URL
+
+            }).then(session => {
+              // Execute SQL query after successful payment
+              const updateQuery = 'UPDATE carts SET is_active = 0 WHERE user_id = ? AND is_active = 1';   
+              const orderInsertQuery = 'INSERT INTO orders (user_id, paymentWay, discount, priceAfterDiscount, totalPrice, order_date, OrderDetailsID) VALUES (?, Card, ?, ?, ?, NOW(), ?)'       
+              const orderValues = [
+                userId,
+                discount,
+                priceAfterDiscount,
+                ,
+                OrderDetailsID
+              ];    
+              connection.query(updateQuery, [userId], (updateErr, updateResult) => {
+                if (updateErr) {
+                  console.error("Error updating user's last payment date:", updateErr);
+                  return res.status(500).json({ error: "An error occurred while updating user's last payment date" });
+                }
+                // Handle success response
+                res.json({ url: session.url });
+              });
+
+              connection.query(orderInsertQuery, [userId], (updateErr, updateResult) => {
+                if (updateErr) {
+                  console.error("Error updating user's last payment date:", updateErr);
+                  return res.status(500).json({ error: "An error occurred while updating user's last payment date" });
+                }
+                // Handle success response
+                res.json({ url: session.url });
+              });
+
+
+            }).catch(error => {
+              console.error("Error creating Stripe session:", error);
+              res.status(500).json({ error: "An error occurred while creating the Stripe session" });
             });
 
-            res.json({ url: session.url }); // Replace 'stripe_session_url' with the actual session URL
+           
+            // connection.query(updateQuery, [userId], (updateErr, updateResult) => {
+            //   if (updateErr) {
+            //     console.error("Error updating user's last payment date:", updateErr);
+            //     // Handle error response
+            //     return res.status(500).json({ error: "An error occurred while updating user's last payment date" });
+            //   }
+            //   // Handle success response
+            //   res.json({ url: session.url }); // Replace 'stripe_session_url' with the actual session URL
+            // });
         })
         .catch((error) => {
           console.log(error);
@@ -123,6 +181,9 @@ router.post("/checkout-session", async (req, res) => {
     res.status(500).json(error);
   }
 });
+
+
+
 
 
 module.exports = router;

@@ -71,7 +71,7 @@ const Review = ({ postId, userId, userName }) => {
         // console.log(commentsWithProfileImages);
 
         // setComments(commentsWithProfileImages);
-        setComments(data);
+        setComments(data.result);
 
         console.log("Comments");
         console.log(comments);
@@ -233,16 +233,16 @@ const Review = ({ postId, userId, userName }) => {
 
       {comments.length > 0 ? (
         comments.map((comment) => (
-          <div className="allCommentContainer" key={comment._id}>
+          <div className="allCommentContainer" key={comment.id}>
             <div className="comment">
               <div className="commentHeader">
                 <div className="commentHeaderUserDiv">
                   <div className="commentHeaderInfo">
-                    <img
+                    {/* <img
                       src={`https://zing-media.onrender.com/${comment.profileImg}`}
                       alt=""
-                    />
-                    <h1>{comment.userName}</h1>
+                    /> */}
+                    <h1>{comment.fullname}</h1>
                   </div>
                   <div className="commentHeaderTime">
                     <p>{getTimeDifferenceString(comment.createdAt)}</p>
@@ -257,7 +257,7 @@ const Review = ({ postId, userId, userName }) => {
                   )}
                 </div>
               </div>
-              <h2>{comment.text}</h2>
+              <h2>{comment.review}</h2>
             </div>
           </div>
         ))

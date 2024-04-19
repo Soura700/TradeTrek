@@ -16,6 +16,7 @@ const interactionRoute = require("./routes/interaction");
 const rating = require("./routes/rating");
 const reviewRoute = require("./routes/review");
 const axios = require( 'axios' );
+const { exec } = require("child_process");
 
 
 
@@ -123,6 +124,44 @@ app.post('/api/recommendations', async (req, res) => {
       res.status(500).json({ error: 'Internal server error' });
   }
 });
+
+app.post("/api/predict", async (req, res) => {
+  try {
+      console.log("Received review request");
+
+      // Make a POST request to the Flask API
+      const response = await axios.post('http://127.0.0.1:5000/predict');
+
+      // Extract data from the response
+      const data = response.data;
+
+      // Log the received data
+      console.log("Received data from Flask API:", data);
+
+      // Send the received data as the response
+      res.status(200).json(data);
+  } catch (error) {
+      // Log and handle errors
+      console.error("Error:", error.message);
+      res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// const startFlaskAPI = () => {
+//   exec('python nlp.py', (error, stdout, stderr) => {
+//       if (error) {
+//           console.error(`Error: ${error.message}`);
+//           return;
+//       }
+//       if (stderr) {
+//           console.error(`stderr: ${stderr}`);
+//           return;
+//       }
+//       console.log(`stdout: ${stdout}`);
+//   });
+// };
+// startFlaskAPI();
+
 
 app.use("/api/auth",registerAuth);
 

@@ -109,7 +109,7 @@ const io = require("../socket");
 // });
 
 router.post("/create-order", async (req, res) => {
-  console.log("Done");
+  console.log("Called");
   try {
     const {
       user_id,
@@ -142,7 +142,7 @@ router.post("/create-order", async (req, res) => {
       `;
       const orderValues = [
         user_id,
-        paymentWay,
+        'Card',
         discount,
         priceAfterDiscount,
         totalPrice,

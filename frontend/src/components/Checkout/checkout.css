@@ -4972,7 +4972,7 @@ h6,
 .h6 {
     color: var(--ltn__heading-color);
     clear: both;
-    font-family: var(--ltn__heading-font);
+    /* font-family: var(--ltn__heading-font); */
     font-weight: 700;
     line-height: 1.3;
     margin-bottom: 15px;
@@ -5014,7 +5014,7 @@ input,
 optgroup,
 select,
 textarea {
-    font-family: var(--ltn__body-font);
+    /* font-family: var(--ltn__body-font); */
 }
 
 pre,
@@ -5062,10 +5062,10 @@ input[type="button"]:focus,
 input[type="reset"]:focus,
 input[type="submit"]:focus,
 select:focus {
-    outline: none;
+    /* outline: none;
     -webkit-box-shadow: none;
     box-shadow: none;
-    border: 1px solid #ddd;
+    border: 1px solid #ddd; */
 }
 
 code {

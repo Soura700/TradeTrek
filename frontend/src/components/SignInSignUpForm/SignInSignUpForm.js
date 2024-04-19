@@ -1,6 +1,10 @@
 import axios from "axios";
-import img from "../../assets/img.svg";
-import img2 from "../../assets/img1.svg";
+// import img from "../../assets/img.svg";
+import img from "../../assets/5738137-removebg.png";
+
+import img2 from "../../assets/9027295_1_-removebg-preview.png";
+
+// import img2 from "../../assets/img1.svg";
 import "./sign.css";
 // import styles from "./sign.module.css"
 import React, { useState } from "react";
