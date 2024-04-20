@@ -392,5 +392,30 @@ router.delete("/delete_cart/:user_id" , async (req,res)=>{
 })
 
 
+router.get("/get/cart/:user_id/:product_id", (req, res) => {
+  const user_id = req.params.user_id;
+  const product_id = req.params.product_id;
+
+  try {
+    connection.query(
+      `SELECT p_id, productName, is_active, totalPrice, c.price, images, SUM(cartItemCount) AS total
+      FROM products p 
+      JOIN carts c ON c.product_id = p.p_id  
+      WHERE c.user_id = ? AND p.p_id = ?
+      GROUP BY p.p_id, p.productName, c.is_active, c.totalPrice, c.price, p.images;`,
+      [user_id,product_id],
+      (err, result) => {
+        if (err) {
+          return res.status(500).json(err);
+        } else {
+          res.status(200).json(result);
+        }
+      }
+    );
+  } catch (error) {
+    res.status(500).json(error);
+  }
+});
+
 // Exporting
 module.exports = router;

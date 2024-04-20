@@ -67,6 +67,7 @@ const Header = ({ value }) => {
       socket.on(
         "create_cart",
         async ({ product_id, cartItemCount, user_id, total_Price }) => {
+          alert("Called The create socket part")
           // Fetch the product details based on product_id
           const existingProductIndex = activeProducts.findIndex(
             (product) => product.p_id === product_id
@@ -109,11 +110,17 @@ const Header = ({ value }) => {
       socket.on(
         "update_cart",
         async ({ product_id, cartItemCount, user_id, total_Price }) => {
+          alert("Called the Update Socket part")
+          alert(product_id);
+          console.log("Active Products");
+          console.log(activeProducts);
           // Fetch the product details based on product_id
           const existingProductIndex = activeProducts.findIndex(
-            (product) => product.p_id === product_id
+            (product) => parseInt(product.p_id) === parseInt(product_id)
           );
+          alert(existingProductIndex);
           if (existingProductIndex !== -1) {
+            alert("Exist")
             // let newTotalPrice = 0;
             const updatedActiveProducts = [...activeProducts];
             updatedActiveProducts[existingProductIndex].total += cartItemCount;

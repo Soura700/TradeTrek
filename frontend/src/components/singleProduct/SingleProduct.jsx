@@ -23,7 +23,8 @@ const SingleProduct = () => {
   const [rating, setRating] = useState(0);
   const [review, setReview] = useState("");
   const [averageRating, setAverageRating] = useState(0);
-
+  const [userId, setUserId] = useState(null);
+  const [maxCount,setMaxCount] = useState(null);
 
   useEffect(() => {
     // Function to call API when component mounts
@@ -38,6 +39,7 @@ const SingleProduct = () => {
           }
         );
         const cookieData = await cookie.json();
+        setUserId(cookieData);
 
         // Make API call to track user visit
         await axios.post("http://localhost:5000/api/interaction/logUserView", {
@@ -61,10 +63,26 @@ const SingleProduct = () => {
       }
     }
 
+    async function checkCart() {
+      try {
+        const response = await axios.get(
+          `http://localhost:5000/api/cart/get/cart/${userId}/${id}`
+        );
+        const data = response.data;
+        if(data.length >0){
+          setMaxCount(data[0].total);
+        }else{
+          setMaxCount(0)
+        }
+      } catch (error) {
+        console.log("Error in fetching the:" + error);
+      }
+    }
+
     callApi(); // Call the function when component mounts
     averageRatingFunc();
-  }, [isLoggedIn, checkAuthentication, id]);
-
+    checkCart();
+  }, [isLoggedIn, checkAuthentication, id , userId]);
 
   useEffect(() => {
     async function fetchSliderProducts() {
@@ -101,11 +119,15 @@ const SingleProduct = () => {
   };
 
   const handleCount = () => {
-    // alert("Hello");
-    if (quantity < singleProduct[0].countInStock) {
-      setQuantity(quantity + 1);
-    }
+    alert("Hello");
+    // if (quantity < singleProduct[0].countInStock) {
+    //   setQuantity(quantity + 1);
+    // }
     // setQuantity(quantity + 1);
+  };
+
+  const handleDecreaseCount = () => {
+    alert("Hello 2");
   };
 
   const handleCart = async (event) => {
@@ -188,7 +210,6 @@ const SingleProduct = () => {
           ratings: rating, // Assuming rating is the variable storing the user's rating
         }
       );
-
       // Handle success response
       console.log(rating_response); // Assuming the API returns a message
     } catch (error) {
@@ -364,30 +385,19 @@ const SingleProduct = () => {
                   <input
                     type="number"
                     min="1"
+                    max={singleProduct[0].countInStock - maxCount}
                     value={quantity}
-                    onClick={handleCount}
+                    onChange={(e) => setQuantity(parseInt(e.target.value))}
+                    // value={quantity}
+                    // onClick={handleCount}
                   />
-                  {/* {slide.countInStock ? (
-                  // <button type="button" class="btn" onClick={{handleCart,notify}} >Add To Cart 
-                  <button type="button" className="btn_single" onClick={()=>{ handleCart() ;  notify() ;} }>Add To Cart 
 
-                    {isLoggedIn ? (
-                      <>
-                        <ToastContainer/>
-                        <i class="fas fa-shopping-cart"></i>
-                      </>
-                    ) : (
-                      <>
-                        
-                        <Link to="/login">Add to Cart</Link>
-                      </>
-                      // console.log("Done")
-                    )
-                    }
+                  {/* <button type="button" onClick={handleDecreaseCount}>
+                    -
                   </button>
-                ) : (
-                  " "
-                )} */}
+                  <button type="button" onClick={handleCount}>
+                    +
+                  </button> */}
 
                   {slide.countInStock > 0 && (
                     <button
