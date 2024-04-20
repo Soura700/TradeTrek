@@ -469,7 +469,7 @@ const SingleProduct = () => {
           <button onClick={handleSubmitReview}>Submit Review</button>
         </div>
       </div>
-      <Review />
+      <Review product_id={id}/>
     </>
   );
 };

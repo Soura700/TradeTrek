@@ -5,11 +5,11 @@ import { CgEnter, CgShoppingBag } from "react-icons/cg";
 import { GoArrowDownRight } from "react-icons/go";
 import { Link } from "react-router-dom";
 import { io } from "socket.io-client";
+import axios from "axios";
 
 const Header = ({ value }) => {
   var count = 0;
   // var totalPrice = 0;
-
   const activeCartProduct = value.filter(
     (slide) => slide.is_active === 1 && (count = count + 1)
   );
@@ -24,6 +24,7 @@ const Header = ({ value }) => {
 
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [socket, setSocket] = useState(null); //For setting the socket connection
+  const [orders,setOrders] = useState([]);
 
   const toggleMenu = () => {
     setShowMenu((ShowMenu) => !ShowMenu);
@@ -58,7 +59,19 @@ const Header = ({ value }) => {
       }
     }
 
+    const fetchOrders = async () =>{
+      try{
+        const response = await axios.get("http://localhost:5000/api/order/get_order/"+cookie)
+        const data = await response.data;
+        setOrders(data);
+        console.log("Orders:" + data); 
+      }catch(error){
+        console.log("error:" + error)
+      }
+    }
+
     fetchCartProducts();
+    fetchOrders();
     setActiveProducts(activeCartProduct);
   }, []);
 

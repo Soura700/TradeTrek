@@ -26,14 +26,8 @@ import ResetPasswordForm from './components/SignInSignUpForm/ResetPasswordForm.j
 
 function App() {
 
-
-
-
   const [cartData, setCartData] = useState([]);
   const [cookie , setCookie] = useState(null);
-  
-
-
 
   useEffect(() => {
     async function fetchCartProducts() {

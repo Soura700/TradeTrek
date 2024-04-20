@@ -24,7 +24,7 @@ const Hero = ({value}) => {
     <div className={css.container}>
 
       <div className={css.h_sides}>
-        <span className={css.text1}>skin protection cream</span>
+        <span className={css.text1}>Smart Electronic Gadget</span>
 
         <div className={css.text2}>
           <span>Trendy Collection</span>

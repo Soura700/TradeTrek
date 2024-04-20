@@ -471,6 +471,27 @@ router.put("/change_status", (req, res) => {
   );
 });
 
+router.get("/get_order/:user_id",(req,res)=>{
+  const { user_id } = req.params;
+
+  const sqlQuery = `SELECT order_status FROM orders WHERE user_id = ? AND order_status != 'completed' `;
+  connection.query(
+    sqlQuery,
+    [user_id],
+    async (sqlError, sqlResults) => {
+      if (sqlError) {
+        console.error("SQL Error:", sqlError);
+        res
+          .status(500)
+          .json({ error: "An error occurred while getting the orders" });
+        return;
+      } else {
+        res.status(200).json(sqlResults);
+      }
+    }
+  );
+})
+
 // Get the Status of the user_id
 router.get("/get_status/:user_id/:order_id", (req, res) => {
   const { user_id, order_id } = req.params;

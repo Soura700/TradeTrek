@@ -5,13 +5,16 @@ import "./review.css";
 import DeleteRoundedIcon from "@mui/icons-material/DeleteRounded";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import { Link, useParams } from "react-router-dom";
+import { useAuth } from "../../context/authContext";
 
-const Review = ({ postId, userId, userName }) => {
+const Review = ({ product_id }) => {
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
   const [username, setUsername] = useState(null);
   const [socket, setSocket] = useState(null); //For setting the socket connection
   const { id, productName } = useParams();
+  const { isLoggedIn, checkAuthentication } = useAuth();
+  const [userId , setUserId] = useState(null);
 
   //   useEffect(() => {
   //     const newSocket = io("http://localhost:8000");
@@ -47,6 +50,30 @@ const Review = ({ postId, userId, userName }) => {
 
   // alert(username);
 
+
+  useEffect(() => {
+    // Function to call API when component mounts
+    async function callApi() {
+      await checkAuthentication();
+      try {
+        const cookie = await fetch(
+          "http://localhost:5000/api/auth/check-cookie",
+          {
+            method: "GET",
+            credentials: "include",
+          }
+        );
+        const cookieData = await cookie.json();
+        setUserId(cookieData);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    callApi();
+  }, []);
+
+
   useEffect(() => {
     async function fetchComments() {
       try {
@@ -80,7 +107,7 @@ const Review = ({ postId, userId, userName }) => {
       }
     }
     fetchComments();
-  }, [postId]);
+  }, [product_id]);
 
   //   useEffect(() => {
   //     if (socket) {
@@ -129,12 +156,12 @@ const Review = ({ postId, userId, userName }) => {
   const handleComment = async () => {
     try {
       const response = await axios.post(
-        "https://zing-media.onrender.com/api/comment/create_comments",
+        "http://localhost:5000/api/review/set_reviews",
         {
-          postId: postId,
-          userId: userId,
-          userName: username,
-          text: newComment,
+          product_id: product_id,
+          user_id: userId,
+          // userName: username,
+          review: newComment,
         }
       );
       // setComments((prevComments) => [...prevComments, response.data]);
@@ -147,7 +174,7 @@ const Review = ({ postId, userId, userName }) => {
   const handleDeleteComment = async (commentId) => {
     try {
       await axios.delete(
-        `https://zing-media.onrender.com/api/comment/delete_comments/${commentId}`
+        `http://localhost:5000/api/comment/delete_comments/${commentId}`
       );
       setComments((prevComments) =>
         prevComments.filter((comment) => comment._id !== commentId)
