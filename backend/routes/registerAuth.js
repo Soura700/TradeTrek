@@ -7,7 +7,8 @@ const session = require("express-session");
 const MongoStore = require("connect-mongo")(session); // Import the session store
 const cookieParser = require("cookie-parser");
 const jwt = require("jsonwebtoken");
-const sendMail = require("../controllers/sendMail");
+const nodemailer = require("nodemailer");
+// const sendMail = require("../controllers/sendMail");
 
 router.use(cookieParser());
 
@@ -304,44 +305,6 @@ router.get("/check-cookie", (req, res) => {
 
 
 // Forgot password
-router.post("/forgot-password", async (req, res) => {
-  try {
-    const email = req.body.email;
-
-    // Fetch user from MySQL
-
-    connection.query('SELECT * FROM users WHERE email = ?', email,async (err,result)=>{
-        if(err){
-          return res.status(500).json(err)
-        }else{
-          if(result.length > 0){
-            console.log(result)
-            console.log(result[0].user_password)
-            const secret = process.env.JWT_SECRET + result[0].user_password;
-            const payload = {
-              email: result.email,
-              id: result.id
-            }
-            const jwtToken = jwt.sign(payload, secret, { expiresIn: '15m' });
-
-            const emailContent = `Hello, Please click the link to reset your password http://localhost:3000/reset-password/${result[0].id}/${jwtToken}`;
-
-            await sendMail(email,emailContent)
-      
-            // Send the email using your preferred method (not shown here)
-            console.log(emailContent)
-      
-            res.json({ msg: 'Password reset link sent successfully!' });
-          }
-        }
-    })
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: "Error occurred", error });
-  }
-});
-
-
 router.get("/reset-password/:id/:token", async (req, res) => {
   const { id, token } = req.params;
 
@@ -397,6 +360,151 @@ router.post("/reset-password/:id/:token", async (req, res, next) => {
     console.log(error);
     res.status(500).json(error);
   }
+});
+
+
+//forgot password
+router.post("/password/forgotpassword", async (req, res) => {
+  console.log("Called");
+  try {
+    const { email } = req.body;
+    connection.query(
+      "SELECT * FROM users WHERE email = ?",
+      [email], // Add a comma here to separate the query string from the parameter array
+      (error, results) => {
+        if (error) {
+          console.log(error);
+          return res.status(400).json(error);
+        } else {
+          // if (!results[0].email) {
+          if (results.length === 0) {
+            console.log("Entered");
+            res.status(400).json("User is not registered");
+          } else {
+            const secret = process.env.SECRET_KEY + results[0].user_password;
+            const payload = {
+              email: results[0].email,
+              id: results[0].id,
+            };
+            const token = jwt.sign(payload, secret, { expiresIn: "10m" });
+            const link = `http://localhost:3000/resetpassword/${results[0].id}/${token}`;
+            console.log(token);
+            console.log(link);
+            let transporter = nodemailer.createTransport({
+              service: "gmail",
+              // auth: {
+              //   user: "sourabose66@gmail.com",
+              //   pass: "weelmmnyhsodglmw",
+              // },
+              auth: {
+                user: 'sourabose2004@gmail.com',
+                pass: 'uzixjeiuaawureeq'
+            }
+            });
+
+            let message = {
+              from: "sourabose66@gmail.com",
+              to: results[0].email,
+              subject: "Password Reset",
+              text: link,
+            };
+            transporter.sendMail(message, (error, info) => {
+              if (error) {
+                console.log("Error");
+                console.log(error);
+              } else {
+                // console.log("Email sent: " + info.response);
+                res
+                  .status(200)
+                  .json({ msg: "Link has been send successfylly" });
+              }
+            });
+            // res.send("Password link has been sent...");
+          }
+        }
+      }
+    );
+  } catch (error) {
+    // console.log(error);
+  }
+});
+
+//reset password
+router.get("/resetpassword/:id/:token", async (req, res) => {
+  const { id, token } = req.params;
+  connection.query(
+    "SELECT * FROM users WHERE id = ?",
+    [id], // Add a comma here to separate the query string from the parameter array
+    (error, results) => {
+      if (error) {
+        return res.status(500).json(error);
+      } else {
+        if (!results[0].id) {
+          return res.status(409).json("User is not registered");
+        } else {
+          try {
+            const secret = process.env.SECRET_KEY + user.password;
+            const payload = jwt.verify(token, secret);
+            res.redirect("/resetpassword/:id/:token");
+          } catch (error) {
+            res.status(500).json(error);
+          }
+        }
+      }
+    }
+  );
+});
+
+//update password
+router.post("/resetpassword/:id/:token", async (req, res, next) => {
+  const { id, token } = req.params;
+
+  // Fetch the user from the database based on id
+  connection.query(
+    "SELECT * FROM users WHERE id = ?",
+    id,
+    async (error, results, fields) => {
+      if (error) {
+        console.error("Error fetching user from MySQL database: ", error);
+        return res.status(500).json({ error: "Internal Server Error" });
+      }
+      // Check if the user exists
+      if (results.length === 0) {
+        return res.json({ status: "User does not exist" });
+      }
+      const user = results[0];
+      const secret = process.env.SECRET_KEY + user.user_password;
+
+      try {
+        // Verify the token
+        const payload = jwt.verify(token, secret);
+
+        // Hash the new password
+        const salt = await bcrypt.genSalt(12);
+        const hashedPass = await bcrypt.hash(req.body.user_password, salt);
+
+        // Update the user's password in the database
+        connection.query(
+          "UPDATE users SET user_password = ? WHERE id = ?",
+          [hashedPass, id],
+          (updateError, updateResults, updateFields) => {
+            if (updateError) {
+              console.error(
+                "Error updating password in MySQL database: ",
+                updateError
+              );
+              return res.status(500).json({ error: "Internal Server Error" });
+            }
+
+            res.json({ msg: "Password Updated" });
+          }
+        );
+      } catch (error) {
+        // console.error("Error resetting password: ", error);
+        res.status(500).json({ error: "Internal Server Error" });
+      }
+    }
+  );
 });
 
 

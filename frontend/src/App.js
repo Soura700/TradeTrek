@@ -135,7 +135,7 @@ function App() {
     //   element: <Reset />,
     // },
     {
-      path: "/reset-password/:id/:token",
+      path: "/resetpassword/:id/:token",
       element: <ResetPasswordForm />,
     },
 
