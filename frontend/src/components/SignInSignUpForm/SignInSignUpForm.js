@@ -118,7 +118,10 @@ const SignInSignUpForm = () => {
     try {
       const response = await axios.post(
         "http://localhost:5000/api/auth/register",
-        data
+        data,
+        {
+          withCredentials: true,
+        }
       );
 
       if (response.status === 200) {
