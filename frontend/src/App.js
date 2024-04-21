@@ -11,11 +11,8 @@ import { Link , Route , Router , Outlet, createBrowserRouter, RouterProvider } f
 import Home from './pages/Home/Home';
 import Cart from './components/Cart/Cart';
 import { AuthProvider } from './context/authContext';
-// import Checkout from './pages/Checkout/Checkout';
 import Checkout from './components/Checkout/Checkout';
 import {CartProvider} from "./context/cartContext";
-import Reset from './components/Reset/Reset';
-import Forgot from './components/Forgot/Forgot';
 import SingleOrder from "./components/SingleOrder/SingleOrder.jsx";
 import Admin from './pages/Admin/Admin.jsx';
 import ForgotPasswordForm from './components/SignInSignUpForm/ForgotPasswordForm.js';
