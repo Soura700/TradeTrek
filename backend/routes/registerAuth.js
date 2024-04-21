@@ -220,7 +220,11 @@ router.post(
               }
             );
 
-            res.status(200).json(user);
+            if(user.isAdmin === 1){
+              res.status(201).json(user)
+            }else{
+              res.status(200).json(user);
+            }
           }
         );
       } catch (error) {

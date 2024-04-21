@@ -128,9 +128,10 @@ app.post('/api/recommendations', async (req, res) => {
 app.post("/api/predict", async (req, res) => {
   try {
       console.log("Received review request");
+      const product_id = req.body.product_id
 
       // Make a POST request to the Flask API
-      const response = await axios.post('http://127.0.0.1:5000/predict');
+      const response = await axios.post('http://127.0.0.1:5000/predict' , { product_id });
 
       // Extract data from the response
       const data = response.data;

@@ -20,6 +20,7 @@ import SingleOrder from "./components/SingleOrder/SingleOrder.jsx";
 import Admin from './pages/Admin/Admin.jsx';
 import ForgotPasswordForm from './components/SignInSignUpForm/ForgotPasswordForm.js';
 import ResetPasswordForm from './components/SignInSignUpForm/ResetPasswordForm.js';
+import Overview from './pages/Overviews/Overview.jsx';
 
 
 
@@ -109,10 +110,6 @@ function App() {
           path:"/singleOrder/:id/:order_id",
           element:<SingleOrder/>
         },
-        {
-          path: "/admin",
-          element: <Admin />,
-        },
       ],
     },
 
@@ -132,7 +129,14 @@ function App() {
       path: "/resetpassword/:id/:token",
       element: <ResetPasswordForm />,
     },
-
+    {
+      path: "/admin",
+      element: <Admin />,
+    },
+    {
+      path:"/overview",
+      element:<Overview/>
+    }
     
   ]);
 

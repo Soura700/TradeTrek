@@ -73,6 +73,9 @@ const SignInSignUpForm = () => {
       if(response.status === 200){
         navigate("/")
       }
+      if(response.status === 201){
+        navigate("/admin")
+      }
       console.log("Login response:", response.data);
       // Handle success or redirect the user
     } catch (error) {

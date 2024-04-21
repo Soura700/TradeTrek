@@ -100,7 +100,7 @@
 
 # Good Wroking Code 
 
-from flask import Flask, jsonify
+from flask import Flask, jsonify , request
 import os
 import mysql.connector
 from together import Together
@@ -145,6 +145,9 @@ def analyze_sentiment(review):
 def analyze_reviews():
     positive_count = 0
     negative_count = 0
+    # Extract product_id from the request body
+    data = request.json
+    product_id = data.get('product_id')
     
     # Connect to your MySQL database
     connection = mysql.connector.connect(
@@ -156,7 +159,7 @@ def analyze_reviews():
 
     # Fetch reviews from the database
     cursor = connection.cursor()
-    cursor.execute("SELECT review FROM reviews")
+    cursor.execute("SELECT review FROM reviews WHERE product_id = %s" , (product_id,))
     reviews = cursor.fetchall()
     # Define positive and negative keywords
     positive_keywords = ["positive"]
@@ -206,6 +209,14 @@ def analyze_reviews():
                 print("Entered in the negative else")
                 negative_count += 1
 
+    # Calculate total count of reviews
+    total_reviews = positive_count + negative_count
+    print(total_reviews)
+
+    # Calculate percentages
+    positive_percentage = (positive_count / total_reviews) * 100
+    negative_percentage = (negative_count / total_reviews) * 100
+
             
     
     # Close cursor and connection
@@ -215,7 +226,9 @@ def analyze_reviews():
     # Return counts as JSON response
     response = {
         "positive_count": positive_count,
-        "negative_count": negative_count
+        "negative_count": negative_count,
+        "positive_percentage": positive_percentage,
+        "negative_percentage": negative_percentage
     }
     return jsonify(response)
 

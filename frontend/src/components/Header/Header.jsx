@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect , useRef } from "react";
 import css from "./header.module.css";
 import Logo from "../../assets/logo.png";
 import { CgEnter, CgShoppingBag } from "react-icons/cg";
@@ -24,7 +24,8 @@ const Header = ({ value }) => {
 
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [socket, setSocket] = useState(null); //For setting the socket connection
-  const [orders,setOrders] = useState([]);
+  const [orders, setOrders] = useState([]);
+  const [showOrders, setShowOrders] = useState(false);
 
   const toggleMenu = () => {
     setShowMenu((ShowMenu) => !ShowMenu);
@@ -59,28 +60,30 @@ const Header = ({ value }) => {
       }
     }
 
-    const fetchOrders = async () =>{
-      try{
-        const response = await axios.get("http://localhost:5000/api/order/get_order/"+cookie)
-        const data = await response.data;
+    const fetchOrders = async () => {
+      try {
+        console.log(cookie);
+        const response = await axios.get(
+          "http://localhost:5000/api/order/get_order/" + cookie
+        );
+        const data = response.data;
         setOrders(data);
-        console.log("Orders:" + data); 
-      }catch(error){
-        console.log("error:" + error)
+      } catch (error) {
+        console.log("error:" + error);
       }
-    }
+    };
 
     fetchCartProducts();
     fetchOrders();
     setActiveProducts(activeCartProduct);
-  }, []);
+  }, [cookie]);
 
   useEffect(() => {
     if (socket) {
       socket.on(
         "create_cart",
         async ({ product_id, cartItemCount, user_id, total_Price }) => {
-          alert("Called The create socket part")
+          alert("Called The create socket part");
           // Fetch the product details based on product_id
           const existingProductIndex = activeProducts.findIndex(
             (product) => product.p_id === product_id
@@ -123,7 +126,7 @@ const Header = ({ value }) => {
       socket.on(
         "update_cart",
         async ({ product_id, cartItemCount, user_id, total_Price }) => {
-          alert("Called the Update Socket part")
+          alert("Called the Update Socket part");
           alert(product_id);
           console.log("Active Products");
           console.log(activeProducts);
@@ -133,7 +136,7 @@ const Header = ({ value }) => {
           );
           alert(existingProductIndex);
           if (existingProductIndex !== -1) {
-            alert("Exist")
+            alert("Exist");
             // let newTotalPrice = 0;
             const updatedActiveProducts = [...activeProducts];
             updatedActiveProducts[existingProductIndex].total += cartItemCount;
@@ -241,7 +244,7 @@ const Header = ({ value }) => {
         );
         const suggestionsData = await response.json();
         setSuggestions(suggestionsData);
-        setShowSuggestions(true)
+        setShowSuggestions(true);
       } catch (error) {
         console.log("ERROR FETCHING DATA" + error);
       }
@@ -262,10 +265,33 @@ const Header = ({ value }) => {
     }
   };
 
-  const handleSuggestionClick = async () =>{
+  const handleSuggestionClick = async () => {
     setShowSuggestions(false);
     setSearchTerm("");
-  }
+  };
+
+  // Display orders on click
+  const handleTrackClick = () => {
+    setShowOrders(!showOrders);
+  };
+
+
+  // Hide orders on clicking anywhere
+  const handleClickOutside = (event) => {
+    if (ref.current && !ref.current.contains(event.target)) {
+      setShowOrders(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const ref = useRef(null);
+
 
   var totalCartItem = 0;
   // var totalPrice = 0;
@@ -301,10 +327,59 @@ const Header = ({ value }) => {
           <li>New</li>
           <li>Sales</li>
           <li>ENG</li>
-          <Link to={`/singleOrder/${cookie}/`}>
-            <li>Track</li>
-          </Link>
+
+          {/* <li onClick={handleTrackClick}>
+            Track
+            {showOrders && (
+              <div className={css.suggestion_box} ref={ref}>
+                <h5 className={css.ordersHeading} style={{marginTop:'1px', marginLeft:"1px"}}>Track Orders</h5>
+
+                <div className={css.orderList}>
+                  {orders.map(
+                    (order) => (
+                      (
+                        <Link
+                          key={order.order_id}
+                          to={`/singleOrder/${cookie}/${order.order_id}`} // Replace with your order details page
+                          className={css.orderItem}
+                          style={{marginTop:'1px', marginLeft:"1px"}}
+                        >
+                          {order.productName}
+                        </Link>
+                      )
+                    )
+                  )}
+                </div>
+              </div>
+            )}
+          </li> */}
         </ul>
+
+        <div onClick={handleTrackClick} style={{marginTop:"15px"}}>
+            Track
+            {showOrders && (
+              <div className={css.suggestion_box} ref={ref}>
+                <h5 className={css.ordersHeading} style={{marginTop:'1px', marginLeft:"1px"}}>Track Orders</h5>
+
+                <div className={css.orderList}>
+                  {orders.map(
+                    (order) => (
+                      (
+                        <Link
+                          key={order.order_id}
+                          to={`/singleOrder/${cookie}/${order.order_id}`} // Replace with your order details page
+                          className={css.orderItem}
+                          style={{marginTop:'1px', marginLeft:"1px"}}
+                        >
+                          {order.productName}
+                        </Link>
+                      )
+                    )
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
 
         <div className={css.searchContainer}>
           <input
@@ -317,7 +392,10 @@ const Header = ({ value }) => {
           ></input>
 
           {suggestions.length > 0 && (
-            <div className={css.suggestion_box} style={{display :showSuggestions ?'block' : 'none'}}>
+            <div
+              className={css.suggestion_box}
+              style={{ display: showSuggestions ? "block" : "none" }}
+            >
               {suggestions.map((suggestion) => (
                 <Link
                   key={suggestion.id}

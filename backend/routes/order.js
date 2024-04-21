@@ -474,7 +474,9 @@ router.put("/change_status", (req, res) => {
 router.get("/get_order/:user_id",(req,res)=>{
   const { user_id } = req.params;
 
-  const sqlQuery = `SELECT order_status FROM orders WHERE user_id = ? AND order_status != 'completed' `;
+  console.log("Called");
+  // const sqlQuery = `SELECT * FROM orders WHERE user_id = ? AND order_status != 'completed' `;
+  const sqlQuery =`SELECT orders.* , order_items.* , products.* FROM orders JOIN  order_items ON orders.order_id = order_items.order_id JOIN products ON order_items.product_id = products.p_id  WHERE user_id = ? AND order_status != 'completed';`
   connection.query(
     sqlQuery,
     [user_id],
