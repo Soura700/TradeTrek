@@ -19,7 +19,7 @@ const Footer = () => {
       <div className="cFooter">
         <div className="logo">
           <img src={Logo} alt="" />
-          <span>amazon</span>
+          <span>TradeTrek</span>
         </div>
 
         <div className="block">

@@ -308,7 +308,7 @@ const AdminHeader = () => {
     <div className={css.container}>
       <div className={css.logo}>
         <img src={Logo} alt="" />
-        <span>amazon</span>
+        <span>TradeTrek</span>
       </div>
 
       <div className={css.right}>

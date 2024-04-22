@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import "./checkout.css";
 import axios from "axios";
 import { useParams } from "react-router-dom";
-
+import Swal from 'sweetalert2'
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -23,6 +23,48 @@ const Checkout = () => {
   const [existingAddresses, setExistingAddresses] = useState([]);
   const [selectedAddressId, setSelectedAddressId] = useState(null);
   const [showSelect, setShowSelect] = useState(false);
+
+  useEffect(()=>{
+    async function checkCart(){
+      try {
+        const cookie = await fetch(
+          "http://localhost:5000/api/auth/check-cookie",
+          {
+            method: "GET",
+            credentials: "include",
+          }
+        );
+        const cookieData = await cookie.json();
+        const res = await axios.get(
+          "http://localhost:5000/api/cart/get/cart/" + cookieData
+        );
+
+        console.log("Response from the cart");
+        console.log(res.data.length);
+
+        if(res.data.length <= 0){
+          const overlay = document.createElement("div");
+          overlay.classList.add("overlay");
+          document.body.appendChild(overlay);
+          Swal.fire({
+            icon: "error",
+            title: "Oops...",
+            text: "No Items for Checkout!",
+            footer: '<a href="/">Return to Home?</a>',
+            confirmButtonText: "OK",
+          }).then((result) => {
+            if (result.isConfirmed) {
+              window.location.href = "/";
+            }
+          });
+        }
+        
+      }catch(error){
+        console.log("Error");
+      }
+    }
+    checkCart();
+  },[])
 
   useEffect(() => {
     async function fetchCheckoutProducts() {
@@ -69,6 +111,9 @@ const Checkout = () => {
     }
     check();
   }, []);
+
+
+
 
   const handleDeliverToExistingAddress = () => {
     setShowSelect(true);
@@ -152,6 +197,13 @@ const Checkout = () => {
         );
 
         console.log("Updated successfully Successfully");
+
+        Swal.fire({
+          title: "Order Done!",
+          text: "Thanks for shopping!",
+          icon: "success"
+        });
+
       });
     } catch (error) {
       console.error("Error creating order:", error);
@@ -162,6 +214,21 @@ const Checkout = () => {
   const notify = () => toast("Order has been created successfully"); //Toastify
 
   const handlePayWithOnline = async () => {
+
+    const orderDetails = {
+      user_id: userId,
+      paymentWay: "COD",
+      totalPrice: totalPrice,
+      OrderDetailsID:selectedAddressId,
+      orderItems: data.map((item) => ({
+        product_id: item.p_id, // Use the correct field name for product ID
+        cart_id: item.cart_id,
+        quantity: item.totalCount, // You need to have this field in your data
+        price: item.total, // You need to have this field in your data
+      })),
+    };
+
+
     try {
       const response = await fetch(
         "http://localhost:5000/api/checkout-session",
@@ -170,15 +237,19 @@ const Checkout = () => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ user_id: userId }), // Replace with actual user ID
+          body: JSON.stringify(orderDetails), 
+          // body: JSON.stringify({ user_id: userId }), // Replace with actual user ID
         }
       );
 
-      const data = await response.json();
+      const responsedata = await response.json();
 
-      if (data.url) {
+      if (responsedata.url) {
         // Redirect to the Stripe session URL (PayPal checkout)
-        window.location.href = data.url;
+        // window.location.href = data.url;
+
+        console.log("Data");
+        console.log(data);
 
         data.forEach(async (item, index) => {
           // Fetch the current countInStock value of the product
@@ -188,7 +259,6 @@ const Checkout = () => {
           );
 
           const product = productResponse.data[0];
-          console.log(product);
           const currentCountInStock = product.countInStock;
 
           const newCountInStock = currentCountInStock - item.totalCount;
@@ -209,7 +279,17 @@ const Checkout = () => {
             }
           );
 
+          window.location.href = responsedata.url;
+
           console.log("Updated successfully Successfully");
+          Swal.fire({
+            icon: 'success',
+            title: 'Payment successful!',
+            text: 'Your payment has been processed successfully.',
+            showConfirmButton: false,
+            timer: 2000 // Close the alert after 2 seconds
+          });
+      
         });
       } else {
         console.log("Error: No session URL found.");

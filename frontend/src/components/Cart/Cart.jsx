@@ -4,6 +4,7 @@ import styles from "./cart.module.css";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import { io } from "socket.io-client";
+import Swal from 'sweetalert2'
 
 const Cart = () => {
   const { isLoggedIn, checkAuthentication } = useAuth();
@@ -19,6 +20,48 @@ const Cart = () => {
   const activeProducts = cartData.filter(
     (slide) => slide.is_active === 1 && (count = count + 1)
   );
+
+  useEffect(()=>{
+    async function checkCart(){
+      try {
+        const cookie = await fetch(
+          "http://localhost:5000/api/auth/check-cookie",
+          {
+            method: "GET",
+            credentials: "include",
+          }
+        );
+        const cookieData = await cookie.json();
+        const res = await axios.get(
+          "http://localhost:5000/api/cart/get/cart/" + cookieData
+        );
+
+        console.log("Response from the cart");
+        console.log(res.data.length);
+
+        if(res.data.length <= 0){
+          const overlay = document.createElement("div");
+          overlay.classList.add("overlay");
+          document.body.appendChild(overlay);
+          Swal.fire({
+            icon: "error",
+            title: "Oops...",
+            text: "No Items for Checkout!",
+            footer: '<a href="/">Return to Home?</a>',
+            confirmButtonText: "OK",
+          }).then((result) => {
+            if (result.isConfirmed) {
+              window.location.href = "/";
+            }
+          });
+        }
+        
+      }catch(error){
+        console.log("Error");
+      }
+    }
+    checkCart();
+  },[])
 
   const handleQuantityChange = (index, newQuantity) => {
     const updatedCartData = [...cartData];
@@ -161,7 +204,7 @@ const Cart = () => {
   };
 
   const deleteCartItem = async (productId) => {
-    alert(productId);
+
     const cookie = await fetch("http://localhost:5000/api/auth/check-cookie", {
       method: "GET",
       credentials: "include",
@@ -251,7 +294,7 @@ const Cart = () => {
                                       handleQuantityChange(i, slide.total + 1);
                                       updateCartItem(slide.p_id, newQuantity);
                                     } else {
-                                      alert("No More Product Available");
+                                      // alert("No More Product Available");
                                     }
                                   }}
                                   type="button"

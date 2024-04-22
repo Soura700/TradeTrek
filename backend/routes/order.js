@@ -132,7 +132,6 @@ router.post("/create-order", async (req, res) => {
         res.status(500).json({ error: "An error occurred while fetching order details" });
         return;
       }
-
       const orderDetails = orderDetailsResult[0]; // Assuming there's only one order detail for the given OrderDetailsID
 
       // Insert order data into 'orders' table
@@ -142,7 +141,7 @@ router.post("/create-order", async (req, res) => {
       `;
       const orderValues = [
         user_id,
-        'Card',
+        'COD',
         discount,
         priceAfterDiscount,
         totalPrice,

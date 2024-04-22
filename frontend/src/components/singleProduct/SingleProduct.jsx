@@ -24,7 +24,9 @@ const SingleProduct = () => {
   const [review, setReview] = useState("");
   const [averageRating, setAverageRating] = useState(0);
   const [userId, setUserId] = useState(null);
-  const [maxCount,setMaxCount] = useState(null);
+  const [maxCount, setMaxCount] = useState(null);
+  const [positivePercentage, setPositivePercentage] = useState(0);
+  const [negativePercentage, setNegativePercentage] = useState(0);
 
   useEffect(() => {
     // Function to call API when component mounts
@@ -69,10 +71,10 @@ const SingleProduct = () => {
           `http://localhost:5000/api/cart/get/cart/${userId}/${id}`
         );
         const data = response.data;
-        if(data.length >0){
+        if (data.length > 0) {
           setMaxCount(data[0].total);
-        }else{
-          setMaxCount(0)
+        } else {
+          setMaxCount(0);
         }
       } catch (error) {
         console.log("Error in fetching the:" + error);
@@ -82,7 +84,21 @@ const SingleProduct = () => {
     callApi(); // Call the function when component mounts
     averageRatingFunc();
     checkCart();
-  }, [isLoggedIn, checkAuthentication, id , userId]);
+  }, [isLoggedIn, checkAuthentication, id, userId]);
+
+  useEffect(() => {
+    // Make a request to your Flask API to get positive and negative counts
+    axios
+      .post("http://localhost:5000/api/predict", { product_id: id })
+      .then((response) => {
+        const { positive_percentage, negative_percentage } = response.data;
+        setPositivePercentage(positive_percentage);
+        setNegativePercentage(negative_percentage);
+      })
+      .catch((error) => {
+        console.error("Error fetching data:", error);
+      });
+  }, []);
 
   useEffect(() => {
     async function fetchSliderProducts() {
@@ -108,13 +124,10 @@ const SingleProduct = () => {
     fetchSliderProducts();
   }, []);
 
-
-
   const handleImg = (imageUrl) => {
     //On clickng the img in the select image div the image will be set to the clickd image url in the img-showcase section
     setImg(imageUrl);
   };
-
 
   const handleCart = async (event) => {
     //Adding product to the cart
@@ -285,9 +298,19 @@ const SingleProduct = () => {
             {singleProduct.map((slide, i) => (
               <>
                 <h2 class="product-title">{slide.productName}</h2>
-                <a href="#" class="product-link">
+                {positivePercentage > 50 &&
+                positivePercentage > negativePercentage ? (
+                  <a href="#" class="product-link">
+                    Customer Favorite
+                  </a>
+                ) : (
+                  <a href="#" class="product-link">
+                    Customer Cautions
+                  </a>
+                )}
+                {/* <a href="#" class="product-link">
                   visit nike store
-                </a>
+                </a> */}
                 {/* <div class="product-rating">
                 <i class="fas fa-star"></i>
                 <i class="fas fa-star"></i>
@@ -451,7 +474,7 @@ const SingleProduct = () => {
           <button onClick={handleSubmitReview}>Submit Review</button>
         </div>
       </div>
-      <Review product_id={id}/>
+      <Review product_id={id} />
     </>
   );
 };

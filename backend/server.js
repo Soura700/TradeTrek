@@ -17,6 +17,7 @@ const rating = require("./routes/rating");
 const reviewRoute = require("./routes/review");
 const axios = require( 'axios' );
 const { exec } = require("child_process");
+const Swal = require('sweetalert2')
 
 
 
@@ -76,8 +77,15 @@ PORT=5000;
 //   socket.on("")
 // })
 
+
+
 app.get("/",(req,res)=>{
-  res.send("Hello")
+  // res.send("Hello")
+  Swal.fire({
+    title: "Good job!",
+    text: "You clicked the button!",
+    icon: "success"
+  });
 })
 
 // app.get("/api/recommendations", async (req, res) => {
