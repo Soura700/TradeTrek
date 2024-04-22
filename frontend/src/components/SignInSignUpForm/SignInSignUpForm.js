@@ -1,15 +1,12 @@
 import axios from "axios";
-// import img from "../../assets/img.svg";
 import img from "../../assets/5738137-removebg.png";
-
 import img2 from "../../assets/9027295_1_-removebg-preview.png";
-
-// import img2 from "../../assets/img1.svg";
 import "./sign.css";
-// import styles from "./sign.module.css"
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
+import VisibilityRoundedIcon from '@mui/icons-material/VisibilityRounded';
+import VisibilityOffRoundedIcon from '@mui/icons-material/VisibilityOffRounded';
 
 // signupform
 
@@ -26,7 +23,6 @@ const SignInSignUpForm = () => {
   const [signInPasswordError, setSignInPasswordError] = useState([]);
 
   const [showPassword, setShowPassword] = useState(false);
-
 
   const handleForgotPasswordClick = () => {
     setShowForgotPasswordModal(true);
@@ -70,11 +66,11 @@ const SignInSignUpForm = () => {
           withCredentials: true,
         }
       );
-      if(response.status === 200){
-        navigate("/")
+      if (response.status === 200) {
+        navigate("/");
       }
-      if(response.status === 201){
-        localStorage.setItem('token',response.data.token);
+      if (response.status === 201) {
+        localStorage.setItem("token", response.data.token);
         navigate("/admin");
       }
       console.log("Login response:", response.data);
@@ -84,9 +80,9 @@ const SignInSignUpForm = () => {
       if (error.response.status === 401) {
         // Show a popup or alert indicating that the user already exists
         toast.error("Wrong Credentials");
-      }else if (error.response.status === 404) {
+      } else if (error.response.status === 404) {
         toast.error("User not found!!!");
-      }else {
+      } else {
         if (error.response && error.response.data) {
           const messagesArray = error.response.data.split("@");
 
@@ -172,8 +168,6 @@ const SignInSignUpForm = () => {
     }
   };
 
-
-  
   return (
     <div className={`container ${isSignUp ? "sign-up-mode" : ""}`}>
       <div className="forms-container">
@@ -187,23 +181,38 @@ const SignInSignUpForm = () => {
             <h2 class="title">Sign in</h2>
             <div class="input-field">
               <i class="fas fa-user"></i>
-              <input type="email" name="email" placeholder="Email" onChange={clearEmailError} />
+              <input
+                type="email"
+                name="email"
+                placeholder="Email"
+                onChange={clearEmailError}
+              />
             </div>
             <div class="input-field">
               <i class="fas fa-lock"></i>
               <input
-                type="password"
+                // type="password"
+                type={showPassword ? "text" : "password"}
                 name="user_password"
-                placeholder="Password" onChange={clearSignInPasswordError}
+                placeholder="Password"
+                onChange={clearSignInPasswordError}
               />
+              {showPassword ? (
+                <VisibilityOffRoundedIcon
+                  className="eye-icon"
+                  onClick={() => setShowPassword(!showPassword)}
+                />
+              ) : (
+                <VisibilityRoundedIcon
+                  className="eye-icon"
+                  onClick={() => setShowPassword(!showPassword)}
+                />
+              )}
             </div>
             <input type="submit" value="Login" class="button solid" />
-            <button
-              className="button transparent"
-              onClick={handleForgotPasswordClick}
-            >
-              Forgot Password
-            </button>
+            <p>
+              <Link to="/forgot-password">Forgot Password?</Link>
+            </p>
 
             <p class="social-text">Or Sign in with social platforms</p>
             <div class="social-media">
@@ -234,16 +243,33 @@ const SignInSignUpForm = () => {
             </div>
             <div class="input-field">
               <i class="fas fa-envelope"></i>
-              <input type="email" name="email" onChange={clearEmailError} placeholder="Email" />
+              <input
+                type="email"
+                name="email"
+                onChange={clearEmailError}
+                placeholder="Email"
+              />
             </div>
             <div class="input-field">
               <i class="fas fa-lock"></i>
               <input
-                type="password"
+                // type="password"
+                type={showPassword ? "text" : "password"}
                 onChange={clearPasswordError}
                 name="user_password"
                 placeholder="Password"
               />
+                            {showPassword ? (
+                <VisibilityOffRoundedIcon
+                  className="eye-icon"
+                  onClick={() => setShowPassword(!showPassword)}
+                />
+              ) : (
+                <VisibilityRoundedIcon
+                  className="eye-icon"
+                  onClick={() => setShowPassword(!showPassword)}
+                />
+              )}
             </div>
             <input type="submit" class="button" value="Sign up" />
             <p class="social-text">Or Sign up with social platforms</p>
