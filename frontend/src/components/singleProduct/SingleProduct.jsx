@@ -108,27 +108,13 @@ const SingleProduct = () => {
     fetchSliderProducts();
   }, []);
 
-  // useEffect(() => {//Calling the function when first render happens of the app...to update the isLoggeid from false to true..by checking the condition.
-  //   checkAuthentication(); // Call this when the component mounts
 
-  // }, []);
 
   const handleImg = (imageUrl) => {
     //On clickng the img in the select image div the image will be set to the clickd image url in the img-showcase section
     setImg(imageUrl);
   };
 
-  const handleCount = () => {
-    alert("Hello");
-    // if (quantity < singleProduct[0].countInStock) {
-    //   setQuantity(quantity + 1);
-    // }
-    // setQuantity(quantity + 1);
-  };
-
-  const handleDecreaseCount = () => {
-    alert("Hello 2");
-  };
 
   const handleCart = async (event) => {
     //Adding product to the cart
@@ -149,8 +135,6 @@ const SingleProduct = () => {
       const product_data = product.data;
 
       var product_price = product_data[0].price;
-
-      alert(product_price);
 
       const data = await response.json();
 
@@ -190,7 +174,6 @@ const SingleProduct = () => {
   };
 
   const handleSubmitReview = async () => {
-    alert("Called");
     try {
       const response = await fetch(
         "http://localhost:5000/api/auth/check-cookie",
@@ -218,6 +201,9 @@ const SingleProduct = () => {
       console.log("Error" + error);
     }
   };
+
+  console.log("Single Product:");
+  console.log(singleProduct);
 
   return (
     <>
@@ -355,10 +341,6 @@ const SingleProduct = () => {
                 <div class="product-detail">
                   <h2 className="product-detail">about this item: </h2>
                   <p>{slide.product_description}</p>
-                  {/* <p>
-                Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                Consequatur, perferendis eius. Dignissimos, labore suscipit. Unde.
-              </p> */}
                   <ul>
                     <li>
                       Color: <span>Black</span>
@@ -371,7 +353,7 @@ const SingleProduct = () => {
                       </span>
                     </li>
                     <li>
-                      Category: <span>Shoes</span>
+                      Category: <span>{singleProduct[0].categories}</span>
                     </li>
                     <li>
                       Shipping Area: <span>All over the world</span>
