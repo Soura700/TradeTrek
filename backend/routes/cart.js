@@ -249,7 +249,7 @@ router.get("/get/cart/:user_id", (req, res) => {
       `SELECT p_id, productName, is_active, totalPrice, c.price, images, SUM(cartItemCount) AS total
       FROM products p 
       JOIN carts c ON c.product_id = p.p_id  
-      WHERE c.user_id = ?
+      WHERE c.user_id = ? AND is_active = 1
       GROUP BY p.p_id, p.productName, c.is_active, c.totalPrice, c.price, p.images;`,
       [user_id],
       (err, result) => {

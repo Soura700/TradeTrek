@@ -96,6 +96,7 @@ const Products = () => {
         "http://localhost:5000/api/cart/add-to-cart",
         data1
       );
+      toast.success("Item has been added to the cart")
     } catch (error) {
       console.error("Cart error:", error);
       // Handle error
@@ -134,10 +135,7 @@ const Products = () => {
                     >
                       {isLoggedIn ? (
                         <>
-                          {/* <Link to={`/cart/${id}/${productName}`}>
-                         Add to Cart
-                       </Link> */}
-                          <ToastContainer />
+                          {/* <ToastContainer /> */}
 
                           <i class="fas fa-shopping-cart"></i>
                         </>
@@ -165,6 +163,7 @@ const Products = () => {
           ))}
         </div>
       </div>
+      <ToastContainer/>
     </div>
   );
 };

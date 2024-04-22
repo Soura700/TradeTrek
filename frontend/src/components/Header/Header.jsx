@@ -6,8 +6,9 @@ import { GoArrowDownRight } from "react-icons/go";
 import { Link } from "react-router-dom";
 import { io } from "socket.io-client";
 import axios from "axios";
+import { toast } from "react-toastify";
 
-const Header = ({ value }) => {
+const Header = ({ value  , isSidebarOpen }) => {
   var count = 0;
   // var totalPrice = 0;
   const activeCartProduct = value.filter(
@@ -26,6 +27,7 @@ const Header = ({ value }) => {
   const [socket, setSocket] = useState(null); //For setting the socket connection
   const [orders, setOrders] = useState([]);
   const [showOrders, setShowOrders] = useState(false);
+  
 
   const toggleMenu = () => {
     setShowMenu((ShowMenu) => !ShowMenu);
@@ -34,6 +36,8 @@ const Header = ({ value }) => {
   const toggleSidebar = () => {
     setSidebarOpen((prev) => !prev);
   };
+
+  
 
   useEffect(() => {
     const newSocket = io("http://localhost:8000");
@@ -272,7 +276,12 @@ const Header = ({ value }) => {
 
   // Display orders on click
   const handleTrackClick = () => {
-    setShowOrders(!showOrders);
+    if(orders.length <=0){
+      toast.error("No Orders to track")
+    }else{
+      setShowOrders(!showOrders);
+    }
+    // setShowOrders(!showOrders);
   };
 
 
@@ -411,7 +420,7 @@ const Header = ({ value }) => {
 
         <CgShoppingBag className={css.cart} onClick={toggleSidebar} />
       </div>
-      <div className={`${css.sidebar} ${sidebarOpen ? css.sidebarOpen : ""}`}>
+      <div className={`${css.sidebar} ${sidebarOpen || isSidebarOpen ? css.sidebarOpen : ""}`}>
         <div className={css.miniCart}>
           <div className={css.miniCartHead}>
             <span className={css.miniCartTitle}>Cart</span>

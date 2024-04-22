@@ -11,7 +11,7 @@ import Testimonial from "../../components/Testimonials/Testimonials"
 import Products from "../../components/Products/Products"
 import Recommendation from '../../components/Recommendation/Recommendation'
 
-const Home = () => {
+const Home = ({toggleSidebar}) => {
 
   const [cartData, setCartData] = useState([]);
   const [cookie , setCookie] = useState(null);
@@ -59,7 +59,7 @@ const Home = () => {
 
   return (
     <div>
-      <Hero value={cartData} />
+      <Hero value={cartData} toggleSidebar={toggleSidebar} />
       <Slider/>
       <Products/> 
       <Recommendation/>

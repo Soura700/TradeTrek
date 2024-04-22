@@ -27,6 +27,12 @@ function App() {
 
   const [cartData, setCartData] = useState([]);
   const [cookie , setCookie] = useState(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
 
   useEffect(() => {
     async function fetchCartProducts() {
@@ -70,7 +76,7 @@ function App() {
   const Layout = () =>{
     return(
       <div>
-        <Header value={cartData}/>
+        <Header value={cartData} isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar}/>
         {/* <div> */}
           <Outlet/>
         {/* </div> */}
@@ -90,7 +96,7 @@ function App() {
       children: [
         {
           path: "/",
-          element: <Home />,
+          element: <Home toggleSidebar={toggleSidebar}/>,
         },
         {
           path: "/singleProduct/:id/:productName",
@@ -119,10 +125,6 @@ function App() {
       path: "/forgot-password",
       element: <ForgotPasswordForm />,
     },
-    // {
-    //   path: "/reset-password/:id/:token",
-    //   element: <Reset />,
-    // },
     {
       path: "/resetpassword/:id/:token",
       element: <ResetPasswordForm />,

@@ -1,14 +1,11 @@
 import React from "react";
-// import css from "./hero.css";
 import css from "./Hero.module.css"
-// import HeroImg from "../../assets/hero.png";
-// import HeroImg from "../../assets/mainImage.png";
 import HeroImg from "../../assets/demo woman.png";
 import { RiShoppingBagFill } from "react-icons/ri";
 import { BsArrowRight } from "react-icons/bs";
 import { motion } from "framer-motion";
 
-const Hero = ({value}) => {
+const Hero = ({value , toggleSidebar}) => {
 
 
 
@@ -16,6 +13,11 @@ const Hero = ({value}) => {
   for(var i = 0 ; i<value.length ; i++){
     totalCartItem = totalCartItem + value[i].total;
   }
+
+  const handleTotalCartItemClick = () => {
+    toggleSidebar(); // Call the toggleSidebar function passed from the parent component
+  };
+
 
 
   const transition = { duration: 3, type: "spring" };
@@ -59,8 +61,7 @@ const Hero = ({value}) => {
           className={css.cart2}
         >
           <RiShoppingBagFill className="signup_offers"/>
-          <div className={css.valueContainer}>
-          {/* Value placed here */}
+          <div className={css.valueContainer} onClick={handleTotalCartItemClick}>
           <span className={css.value}>{totalCartItem}</span>
         </div>
           <div className={css.signup}>
