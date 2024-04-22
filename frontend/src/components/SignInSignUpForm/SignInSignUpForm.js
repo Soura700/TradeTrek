@@ -74,7 +74,8 @@ const SignInSignUpForm = () => {
         navigate("/")
       }
       if(response.status === 201){
-        navigate("/admin")
+        localStorage.setItem('token',response.data.token);
+        navigate("/admin");
       }
       console.log("Login response:", response.data);
       // Handle success or redirect the user

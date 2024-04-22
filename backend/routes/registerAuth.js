@@ -8,6 +8,7 @@ const MongoStore = require("connect-mongo")(session); // Import the session stor
 const cookieParser = require("cookie-parser");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
+const verifyToken = require("../controllers/adminVerify");
 // const sendMail = require("../controllers/sendMail");
 
 router.use(cookieParser());
@@ -175,6 +176,10 @@ router.post(
               return res.status(401).json({ error: "Wrong Credentials" });
             }
 
+            // User is authenticated, generate JWT token
+            const token = jwt.sign({ userId: user.id, isAdmin: user.isAdmin }, process.env.SECRET_KEY, { expiresIn: "10m" });
+            console.log(token);
+
             req.session.userId = user.id;
 
             const userId = user.id.toString();
@@ -221,7 +226,8 @@ router.post(
             );
 
             if(user.isAdmin === 1){
-              res.status(201).json(user)
+              // res.status(201).json(user)
+              res.status(201).json({ token });
             }else{
               res.status(200).json(user);
             }
@@ -511,6 +517,12 @@ router.post("/resetpassword/:id/:token", async (req, res, next) => {
   );
 });
 
+router.use('/verify-token',verifyToken);
+
+router.get('/api/verify-token', (req, res) => {
+  // The user's information (including their role) is already attached to req.user by the verifyToken middleware
+  res.json({ role: req.user.role });
+});
 
 // Exporting
 module.exports = router;

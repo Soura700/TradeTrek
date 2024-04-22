@@ -18,6 +18,7 @@ import Admin from './pages/Admin/Admin.jsx';
 import ForgotPasswordForm from './components/SignInSignUpForm/ForgotPasswordForm.js';
 import ResetPasswordForm from './components/SignInSignUpForm/ResetPasswordForm.js';
 import Overview from './pages/Overviews/Overview.jsx';
+import Error from './pages/Error/404.jsx';
 
 
 
@@ -133,6 +134,10 @@ function App() {
     {
       path:"/overview",
       element:<Overview/>
+    },
+    {
+      path:"/404",
+      element:<Error/>
     }
     
   ]);

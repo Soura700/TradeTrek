@@ -2,9 +2,13 @@ import React, { useEffect, useState } from "react";
 import "./order.css";
 import axios from "axios";
 import { io } from "socket.io-client";
+import { useNavigate } from "react-router-dom";
 import AdminHeader from "../components/AdminHeader/AdminHeader";
+import Swal from "sweetalert2";
+import { toast } from "react-toastify";
 
 const Order = () => {
+  const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
   const [selectedUserId, setSelectedUserId] = useState("");
   const [socket, setSocket] = useState(null); //For setting the socket connection
@@ -64,6 +68,77 @@ const Order = () => {
   };
   useEffect(() => {
     getOrders();
+  }, []);
+
+  const handleConfirmClick = () => {
+    // Redirect to the login page
+    window.location.href = "/login"; // Change the URL as needed
+  };
+
+  const fetchData = async (event) => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const config = {
+        headers: {
+          "x-access-token": token,
+        },
+      };
+
+      const response = await axios.get(
+        "http://localhost:5000/api/auth/verify-token",
+        {
+          headers: {
+            "x-access-token": token,
+          },
+        }
+      );
+      if(response.status === 200 && response.data.isAdmin){
+        toast("Welcome to Admin Page");
+      }else if(response.data.isAdmin === 0){
+        alert("Not an admin")
+      }
+      return response.data;
+    } catch (error) {
+      if (error.response.status === 402) {
+        const overlay = document.createElement("div");
+        overlay.classList.add("overlay");
+        document.body.appendChild(overlay);
+
+        Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: "Something went wrong!",
+          footer: '<a href="/login">Return to Login?</a>',
+          confirmButtonText: "OK",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            window.location.href = "/login";
+          }
+        });
+      }
+      else if(error.response.status === 401){
+        const overlay = document.createElement("div");
+        overlay.classList.add("overlay");
+        document.body.appendChild(overlay);
+        Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: "You don't have access!",
+          footer: '<a href="#">Why do I have this issue?</a>',
+          confirmButtonText: "OK",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            window.location.href = "/";
+          }
+        });
+      }
+      // throw error; // Optionally rethrow the error for the caller to handle
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
   }, []);
 
   const handleStatusChange = async (userId, newStatus, order_id) => {
